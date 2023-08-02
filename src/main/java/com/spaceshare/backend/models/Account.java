@@ -22,8 +22,7 @@ public class Account {
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate createdAt;
-	
-	@NotNull
+
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate updatedAt;
 }

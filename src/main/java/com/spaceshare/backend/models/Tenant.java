@@ -1,14 +1,18 @@
 package com.spaceshare.backend.models;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,4 +31,16 @@ public class Tenant extends User {
 	@GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "uuid-char")
     private UUID id;
+
+    @OneToMany(targetEntity = WishList.class, mappedBy = "tenant")
+    @JsonIgnore
+    private List<WishList> wishLists;
+
+    @OneToMany(targetEntity = Post.class, mappedBy = "tenant")
+    @JsonIgnore
+    private List<Post> posts;
+
+    @OneToMany(targetEntity = Appointment.class, mappedBy = "tenant")
+    @JsonIgnore
+    private List<Appointment> appointments;
 }
