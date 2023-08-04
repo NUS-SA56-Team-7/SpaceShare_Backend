@@ -32,7 +32,7 @@ public class Renter extends User {
     @Type(type = "uuid-char")
     private UUID id;
 
-    @OneToMany(targetEntity = Post.class, mappedBy = "renter")
+    @OneToMany(targetEntity = Property.class, mappedBy = "renter")
     @JsonIgnore
-    private List<Post> posts;
+    private List<Property> properties;
 }

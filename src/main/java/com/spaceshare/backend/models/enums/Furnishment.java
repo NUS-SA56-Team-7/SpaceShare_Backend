@@ -1,4 +1,4 @@
-package com.spaceshare.backend.models.Enum;
+package com.spaceshare.backend.models.enums;
 
 public enum Furnishment {
     FURNISHED,

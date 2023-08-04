@@ -1,23 +1,13 @@
 package com.spaceshare.backend.models;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-
-import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.spaceshare.backend.models.Enum.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,23 +21,13 @@ import lombok.NoArgsConstructor;
 public class PropertyAmenity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Enumerated(EnumType.ORDINAL)
-	@Column(columnDefinition = "TINYINT NOT NULL")
-    private Status status = Status.ACTIVE;
-
-    @NotNull
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate createdAt;
-
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate updatedAt;
-
+	/*** Navigation Properties ***/
     @ManyToOne
     @JsonIgnore
-    private Post post;
+    private Property property;
 
     @ManyToOne
     @JsonIgnore

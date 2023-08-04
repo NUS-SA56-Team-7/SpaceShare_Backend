@@ -36,9 +36,9 @@ public class Tenant extends User {
     @JsonIgnore
     private List<WishList> wishLists;
 
-    @OneToMany(targetEntity = Post.class, mappedBy = "tenant")
+    @OneToMany(targetEntity = Property.class, mappedBy = "tenant")
     @JsonIgnore
-    private List<Post> posts;
+    private List<Property> posts;
 
     @OneToMany(targetEntity = Appointment.class, mappedBy = "tenant")
     @JsonIgnore

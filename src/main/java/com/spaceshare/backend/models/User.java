@@ -3,12 +3,10 @@ package com.spaceshare.backend.models;
 import java.time.LocalDate;
 
 import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 
-import com.spaceshare.backend.models.Enum.Status;
+import com.spaceshare.backend.models.enums.Status;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,16 +25,13 @@ public class User extends Account {
 	@NotNull
 	private String identificationNumber;
 
-	private String profileImageUrl;
-
-	private String address;
-
 	@NotNull
 	private String phone;
 
+	private String address;
+
 	private LocalDate dateOfBirth;
 
-	@Enumerated(EnumType.ORDINAL)
-	@Column(columnDefinition = "TINYINT")
+	@Column(columnDefinition = "TINYINT NOT NULL")
     private Status status = Status.ACTIVE;
 }

@@ -1,13 +1,11 @@
 package com.spaceshare.backend.repos;
 
-import java.util.UUID;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.spaceshare.backend.models.PostComment;
+import com.spaceshare.backend.models.Property;
 
 @Repository
-public interface PostCommentRepository extends JpaRepository<PostComment, UUID> {
+public interface PropertyRepository extends JpaRepository<Property, Long> {
     
 }

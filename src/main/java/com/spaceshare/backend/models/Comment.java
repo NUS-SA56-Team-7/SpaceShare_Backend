@@ -9,7 +9,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.spaceshare.backend.models.enums.ApproveStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,17 +20,25 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
 @Entity
-@Table(name = "ScamReports")
-public class ScamReport extends Common {
+@Table(name = "Comments")
+public class Comment extends Common {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-	@Column(columnDefinition = "TINYINT NOT NULL")
-    private ApproveStatus status = ApproveStatus.PENDING;
+    @Column(columnDefinition = "NVARCHAR(500) NOT NULL")
+    private String comment;
 
-	/*** Navigation Properties ***/
+    /*** Navigation Properties ***/
+    @ManyToOne(optional = true)
+    @JsonIgnore
+    private Renter renter;
+
+    @ManyToOne(optional = true)
+    @JsonIgnore
+    private Tenant tenant;
+
     @ManyToOne
     @JsonIgnore
     private Property property;
