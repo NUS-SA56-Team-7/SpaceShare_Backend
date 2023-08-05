@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,7 +36,7 @@ public class Property extends Common {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotBlank
     private String title;
 
 	@Column(columnDefinition = "TINYINT NOT NULL")
@@ -49,11 +50,11 @@ public class Property extends Common {
 
     private String description;
 
-    @NotNull
+    @NotBlank
     private String address;
 
-    @NotNull
-    private Integer postalCode;
+    @NotBlank
+    private String postalCode;
 
     private String nearbyDesc;
 

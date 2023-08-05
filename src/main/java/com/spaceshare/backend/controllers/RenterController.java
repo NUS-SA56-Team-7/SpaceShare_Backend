@@ -19,5 +19,4 @@ import com.spaceshare.backend.services.RenterService;
 @RequestMapping("/api/renter")
 public class RenterController {
 	
-	
 }
