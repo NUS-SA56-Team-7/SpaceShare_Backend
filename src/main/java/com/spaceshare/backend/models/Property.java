@@ -38,6 +38,8 @@ public class Property extends Common {
 
     @NotBlank
     private String title;
+    
+    private String description;
 
 	@Column(columnDefinition = "TINYINT NOT NULL")
     private PropertyType propertyType;
@@ -48,17 +50,16 @@ public class Property extends Common {
     @NotNull
     private Double rentalFees;
 
-    private String description;
-
     @NotBlank
     private String address;
 
     @NotBlank
     private String postalCode;
 
-    private String nearbyDesc;
-
     private Integer roomArea;
+    
+    @Column(columnDefinition = "TINYINT NOT NULL")
+    private Furnishment furnishment;
 
     @Column(columnDefinition = "TINYINT")
     private Integer numBedrooms;
@@ -68,9 +69,8 @@ public class Property extends Common {
 
     @Column(columnDefinition = "TINYINT")
     private Integer numTenants;
-
-	@Column(columnDefinition = "TINYINT NOT NULL")
-    private Furnishment furnishment;
+	
+	private String nearbyDesc;
 
 	@Column(columnDefinition = "TINYINT NOT NULL")
     private PostType postType;
@@ -87,9 +87,9 @@ public class Property extends Common {
     @JsonIgnore
     private Tenant tenant;
     
-    @OneToMany(targetEntity = WishList.class, mappedBy = "property")
+    @OneToMany(targetEntity = Favourite.class, mappedBy = "property")
     @JsonIgnore
-    private List<WishList> wishLists;
+    private List<Favourite> favourites;
 
     @OneToMany(targetEntity = PropertyImage.class, mappedBy = "property")
     @JsonIgnore

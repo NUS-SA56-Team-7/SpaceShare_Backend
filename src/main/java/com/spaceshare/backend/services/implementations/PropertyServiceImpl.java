@@ -34,7 +34,7 @@ public class PropertyServiceImpl implements PropertyService {
 	}
 	
 	public Property getPropertyById(Long id) {
-		return repoProperty.findById(null)
+		return repoProperty.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException());
 	}
 	

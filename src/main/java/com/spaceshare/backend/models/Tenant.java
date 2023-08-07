@@ -32,13 +32,14 @@ public class Tenant extends User {
     @Type(type = "uuid-char")
     private UUID id;
 
-    @OneToMany(targetEntity = WishList.class, mappedBy = "tenant")
+	/*** Navigation Properties ***/
+	@OneToMany(targetEntity = Property.class, mappedBy = "tenant")
     @JsonIgnore
-    private List<WishList> wishLists;
-
-    @OneToMany(targetEntity = Property.class, mappedBy = "tenant")
+    private List<Property> properties;
+	
+    @OneToMany(targetEntity = Favourite.class, mappedBy = "tenant")
     @JsonIgnore
-    private List<Property> posts;
+    private List<Favourite> favourites;
 
     @OneToMany(targetEntity = Appointment.class, mappedBy = "tenant")
     @JsonIgnore

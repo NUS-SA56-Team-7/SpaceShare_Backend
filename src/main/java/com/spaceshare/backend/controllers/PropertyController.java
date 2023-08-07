@@ -3,6 +3,8 @@ package com.spaceshare.backend.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,17 +21,23 @@ public class PropertyController {
 	@Autowired
 	PropertyService svcProperty;
 	
-	/*** Methods ***/
+	/*** API Methods ***/
 	@PostMapping("/create")
 	public ResponseEntity<?> postCreateProperty(
 			@RequestBody Property property) {
-		Boolean success = svcProperty.createProperty(property);
 		
+		Boolean success = svcProperty.createProperty(property);
 		if (success) {
 			return new ResponseEntity<>(property, HttpStatus.OK);
 		}
 		else {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getPropertyById(@PathVariable Long id) {
+		Property property = svcProperty.getPropertyById(id);
+		return new ResponseEntity<>(property, HttpStatus.OK);
 	}
 }

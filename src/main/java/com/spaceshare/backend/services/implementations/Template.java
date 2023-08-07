@@ -35,7 +35,12 @@ public class Template {
 				.orElseThrow(() -> new ResourceNotFoundException());
 	}
 	
-	public List<Property> getAllProperties() {
-		return repoProperty.findAll();
+	public Boolean deleteStudent(Long id) {
+		return repoProperty.findById(id)
+				.map(existingProperty -> {
+					repoProperty.delete(existingProperty);
+					return true;
+				})
+				.get();
 	}
 }

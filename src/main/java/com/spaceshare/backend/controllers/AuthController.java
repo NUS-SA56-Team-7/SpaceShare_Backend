@@ -27,9 +27,11 @@ import com.spaceshare.backend.functions.GenerateOTP;
 import com.spaceshare.backend.models.Account;
 import com.spaceshare.backend.models.OTP;
 import com.spaceshare.backend.models.Renter;
+import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.services.EmailService;
 import com.spaceshare.backend.services.OtpService;
 import com.spaceshare.backend.services.RenterService;
+import com.spaceshare.backend.services.TenantService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,6 +40,9 @@ public class AuthController {
 	/*** Services ***/
 	@Autowired
 	RenterService svcRenter;
+	
+	@Autowired
+	TenantService svcTenant;
 	
 	@Autowired
 	EmailService svcEmail;
@@ -52,7 +57,7 @@ public class AuthController {
 	@Value("${GOOGLE_RECAPTCHA_SECRET_KEY}")
 	private String GOOGLE_RECAPTCHA_SECRET_KEY;
 
-	/*** HTTP Methods ***/
+	/*** API Methods ***/
 	/* RENTER */
 	@PostMapping("/register/renter")
 	public ResponseEntity<?> postRegisterRenter(@RequestBody Renter renter) {
@@ -150,6 +155,123 @@ public class AuthController {
 	
 	@PostMapping("/resetpassword/renter/{id}/otp/verify")
 	public ResponseEntity<?> postResetPasswordRenterOTPVerify(
+			@PathVariable UUID id,
+			@RequestBody Map<String, String> reqBody) {
+		
+		try {
+			OTP otp = svcOtp.getOtp(id);
+			if (otp.getOtp().equals(reqBody.get("otp"))) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+			else {
+				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	/* TENANT */
+	@PostMapping("/register/tenant")
+	public ResponseEntity<?> postRegisterTenant(@RequestBody Tenant tenant) {
+		Boolean success = svcTenant.createTenant(tenant);
+
+		if (success) {
+			return new ResponseEntity<>(tenant, HttpStatus.OK);
+		}
+		else {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping("/login/tenant")
+	public ResponseEntity<?> postLoginTenant(
+			@RequestBody Account account,
+			HttpSession session) {
+		try {
+			Tenant existingTenant = svcTenant.getTenantByEmail(account.getEmail());
+			if (passwordEncoder.matches(account.getPassword(), existingTenant.getPassword())) {
+				session.setAttribute("userId", existingTenant.getId());
+				
+				Map<String, String> resBody = new HashMap<String, String>();
+				resBody.put("id", existingTenant.getId().toString());
+				resBody.put("email", existingTenant.getEmail());
+				return new ResponseEntity<>(resBody, HttpStatus.OK);
+			}
+			else {
+				Map<String, String> resBody = Map.of("password", "Wrong password");
+				return new ResponseEntity<>(resBody, HttpStatus.UNAUTHORIZED);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			Map<String, String> resBody = Map.of("email", "Account does not exist");
+			return new ResponseEntity<>(resBody, HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			Map<String, String> resBody = Map.of("error", e.getMessage());
+			return new ResponseEntity<>(resBody, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping("/resetpassword/tenant")
+	public ResponseEntity<?> getCheckTenantExists(
+			@RequestBody Map<String, String> reqBody) {
+		try {
+			if (verifyRecaptcha(reqBody.get("recaptchaToken"))) {
+				Tenant existingTenant = svcTenant.getTenantByEmail(reqBody.get("email"));
+				
+				Map<String, String> resBody = new HashMap<String, String>();
+				resBody.put("id", existingTenant.getId().toString());
+				resBody.put("email", existingTenant.getEmail());
+				
+				return new ResponseEntity<>(resBody, HttpStatus.OK);	
+			}
+			else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/resetpassword/tenant/{id}/otp")
+	public ResponseEntity<?> postResetPasswordTenantOTP(
+			@PathVariable UUID id) {
+		try {
+			Tenant existingTenant = svcTenant.getTenantById(id);
+			
+			GenerateOTP generator = new GenerateOTP(6);
+			String otp = generator.get();
+			OTP newOtp = new OTP(existingTenant.getId(), otp);
+			
+			if (svcOtp.createOtp(newOtp)) {
+				svcEmail.sendEmail(
+						existingTenant.getEmail(),
+						"Reset Password (SpaceShare)", otp);
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+			else {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping("/resetpassword/tenant/{id}/otp/verify")
+	public ResponseEntity<?> postResetPasswordTenantOTPVerify(
 			@PathVariable UUID id,
 			@RequestBody Map<String, String> reqBody) {
 		

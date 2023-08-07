@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "WishLists")
-public class WishList {
+@Table(name = "Favourites")
+public class Favourite {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

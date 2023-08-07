@@ -32,6 +32,7 @@ public class Renter extends User {
     @Type(type = "uuid-char")
     private UUID id;
 
+	/*** Navigation Properties ***/
     @OneToMany(targetEntity = Property.class, mappedBy = "renter")
     @JsonIgnore
     private List<Property> properties;
