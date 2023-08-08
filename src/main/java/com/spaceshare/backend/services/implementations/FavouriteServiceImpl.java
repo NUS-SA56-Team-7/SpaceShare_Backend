@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Favourite;
 import com.spaceshare.backend.models.Property;
@@ -35,8 +37,6 @@ public class FavouriteServiceImpl implements FavouriteService {
 		Property property = repoProperty.findById(propertyId)
 				.orElseThrow(() -> new ResourceNotFoundException());
 		
-		System.out.println(tenant);
-		System.out.println(property);
 		try {			
 			Favourite favourite = new Favourite();
 			favourite.setTenant(tenant);
@@ -45,16 +45,13 @@ public class FavouriteServiceImpl implements FavouriteService {
 			repoFavourite.save(favourite);
 			return true;
 		}
+		catch (DataIntegrityViolationException e) {
+			throw new BadRequestException();
+		}
 		catch (Exception e) {
+			System.out.println(e.getMessage());
 			return false;
 		}
-	}
-	
-	public List<Favourite> getAllFavouritesByTenantId(UUID tenantId) {
-		if (repoTenant.findById(tenantId).isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
-		return repoFavourite.findByTenantId(tenantId);
 	}
 	
 	public Boolean deleteFavourite(Long id) {

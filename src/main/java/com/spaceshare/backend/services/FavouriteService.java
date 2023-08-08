@@ -9,7 +9,5 @@ public interface FavouriteService {
     
 	Boolean createFavourite(UUID tenantId, Long propertyId);
 	
-	List<Favourite> getAllFavouritesByTenantId(UUID tenantId);
-	
 	Boolean deleteFavourite(Long id);
 }

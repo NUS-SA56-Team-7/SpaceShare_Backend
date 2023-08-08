@@ -1,6 +1,7 @@
 package com.spaceshare.backend.services.implementations;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
+import com.spaceshare.backend.models.Favourite;
 import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.repos.TenantRepository;
 import com.spaceshare.backend.services.TenantService;

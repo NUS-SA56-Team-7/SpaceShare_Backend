@@ -32,6 +32,5 @@ public class Facility {
 
     /*** Navigation Properties ***/
     @OneToMany(targetEntity = PropertyFacility.class, mappedBy = "facility")
-    @JsonIgnore
     private List<PropertyFacility> propertyFacilities;
 }

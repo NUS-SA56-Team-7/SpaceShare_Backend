@@ -1,5 +1,7 @@
 package com.spaceshare.backend.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spaceshare.backend.exceptions.ResourceNotFoundException;
+import com.spaceshare.backend.models.Comment;
 import com.spaceshare.backend.models.Property;
+import com.spaceshare.backend.services.CommentService;
 import com.spaceshare.backend.services.PropertyService;
 
 @RestController
@@ -20,6 +25,9 @@ public class PropertyController {
 	/*** Services ***/
 	@Autowired
 	PropertyService svcProperty;
+	
+	@Autowired
+	CommentService svcComment;
 	
 	/*** API Methods ***/
 	@PostMapping("/create")
@@ -37,7 +45,30 @@ public class PropertyController {
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getPropertyById(@PathVariable Long id) {
-		Property property = svcProperty.getPropertyById(id);
-		return new ResponseEntity<>(property, HttpStatus.OK);
+		try {
+			Property property = svcProperty.getPropertyById(id);
+			return new ResponseEntity<>(property, HttpStatus.OK);
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	/* Comments */
+	@GetMapping("/{id}/comments")
+	public ResponseEntity<?> getAllComments(@PathVariable Long id) {
+		try {
+			List<Comment> comments = svcComment.getBaseComments(id);
+			return new ResponseEntity<>(comments, HttpStatus.OK);
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

@@ -15,7 +15,6 @@ public class Template {
 	PropertyService svcProperty;
 	
 	/*** Methods ***/
-	@PostMapping("/create")
 	public ResponseEntity<?> postCreateProperty(Property property) {
 		Boolean success = svcProperty.createProperty(property);
 		

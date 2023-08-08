@@ -13,16 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
-import com.spaceshare.backend.models.Favourite;
-import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.services.FavouriteService;
 
 @RestController
 @RequestMapping("/api/favourite")
 public class FavouriteController {
     
-	/*** Service Imports ***/
+	/*** Services ***/
 	@Autowired
 	FavouriteService svcFavourite;
 	
@@ -44,6 +43,9 @@ public class FavouriteController {
 		}
 		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		catch (Exception e) {
 			System.out.println(e.getMessage());

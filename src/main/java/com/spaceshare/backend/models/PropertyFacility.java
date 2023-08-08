@@ -6,6 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,7 +18,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "PropertyFacilities")
+@Table(name = "PropertyFacilities", uniqueConstraints = {
+		@UniqueConstraint(columnNames = {"property_id", "facility_id"})})
 public class PropertyFacility {
 
     @Id

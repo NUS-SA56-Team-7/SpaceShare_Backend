@@ -34,6 +34,5 @@ public class Renter extends User {
 
 	/*** Navigation Properties ***/
     @OneToMany(targetEntity = Property.class, mappedBy = "renter")
-    @JsonIgnore
     private List<Property> properties;
 }

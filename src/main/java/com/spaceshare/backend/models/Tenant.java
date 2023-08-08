@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -34,14 +35,18 @@ public class Tenant extends User {
 
 	/*** Navigation Properties ***/
 	@OneToMany(targetEntity = Property.class, mappedBy = "tenant")
-    @JsonIgnore
+    @ToString.Exclude
     private List<Property> properties;
 	
     @OneToMany(targetEntity = Favourite.class, mappedBy = "tenant")
-    @JsonIgnore
+    @ToString.Exclude
     private List<Favourite> favourites;
+    
+    @OneToMany(targetEntity = Comment.class, mappedBy = "tenant")
+    @ToString.Exclude
+    private List<Comment> comments;
 
     @OneToMany(targetEntity = Appointment.class, mappedBy = "tenant")
-    @JsonIgnore
+    @ToString.Exclude
     private List<Appointment> appointments;
 }

@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -23,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -79,43 +81,46 @@ public class Property extends Common {
     private Status status = Status.ACTIVE;
 
 	/*** Navigation Properties ***/
-    @ManyToOne(optional = true)
+    @ManyToOne
     @JsonIgnore
     private Renter renter;
 
-    @ManyToOne(optional = true)
+    @ManyToOne
     @JsonIgnore
     private Tenant tenant;
     
     @OneToMany(targetEntity = Favourite.class, mappedBy = "property")
-    @JsonIgnore
+    @ToString.Exclude
     private List<Favourite> favourites;
 
     @OneToMany(targetEntity = PropertyImage.class, mappedBy = "property")
-    @JsonIgnore
+    @ToString.Exclude
     private List<PropertyImage> propertyImages;
+    
+    @Transient
+    private List<String> propertyImageURLs;
 
     @OneToMany(targetEntity = PropertyFacility.class, mappedBy = "property")
-    @JsonIgnore
+    @ToString.Exclude
     private List<PropertyFacility> propertyFacilities;
 
     @OneToMany(targetEntity = PropertyAmenity.class, mappedBy = "property")
-    @JsonIgnore
+    @ToString.Exclude
     private List<PropertyAmenity> propertyAmenities;
     
     @OneToMany(targetEntity = PropertyDoc.class, mappedBy = "property")
-    @JsonIgnore
+    @ToString.Exclude
     private List<PropertyDoc> propertyDocs;
     
     @OneToMany(targetEntity = Appointment.class, mappedBy = "property")
-    @JsonIgnore
+    @ToString.Exclude
     private List<Appointment> appointments;
     
     @OneToMany(targetEntity = Comment.class, mappedBy = "property")
-    @JsonIgnore
+    @ToString.Exclude
     private List<Comment> comments;
 
     @OneToMany(targetEntity = ScamReport.class, mappedBy = "property")
-    @JsonIgnore
+    @ToString.Exclude
     private List<ScamReport> scamReports;
 }
