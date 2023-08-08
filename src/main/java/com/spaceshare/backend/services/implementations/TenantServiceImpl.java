@@ -49,4 +49,33 @@ public class TenantServiceImpl implements TenantService {
 		return repoTenant.findByEmail(email)
 				.orElseThrow(() -> new ResourceNotFoundException());
 	}
+
+	@Override
+	public Tenant saveTenant(Tenant tenant) {
+
+		if(tenant.getPassword() != null)
+		{
+			tenant.setPassword(passwordEncoder.encode(tenant.getPassword()));
+		}
+		return repoTenant.saveAndFlush(tenant);
+	}
+
+	@Override
+	public Tenant updateTenant(Tenant tenant) {
+		if(tenant.getPassword() != null)
+		{
+			tenant.setPassword(passwordEncoder.encode(tenant.getPassword()));
+		}
+		return repoTenant.saveAndFlush(tenant);
+	}
+
+	@Override
+	public void deleteTenant(Tenant tenant) {
+		repoTenant.delete(tenant);
+	}
+
+	@Override
+	public List<Tenant> findAllTenants() {
+		return repoTenant.findAll();
+	}
 }

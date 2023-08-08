@@ -1,6 +1,6 @@
 package com.spaceshare.backend.services.implementations;
 
-import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +23,46 @@ public class RenterServiceImpl implements RenterService {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
-	public Boolean createRenter(Renter renter) {
-		try {
+	@Override
+	public Renter findRenterById(UUID id) {
+		return repoRenter.findById(id).orElse(null);
+	}
+
+	@Override
+	public Renter saveRenter(Renter renter) {
+		if(renter.getPassword() != null)
+		{
 			renter.setPassword(passwordEncoder.encode(renter.getPassword()));
-			renter.setCreatedAt(LocalDate.now());
-			renter.setUpdatedAt(LocalDate.now());
-			
-			repoRenter.save(renter);
-			return true;
 		}
-		catch (Exception e) {
-			System.out.println(e.getMessage());
-			return false;
+		return repoRenter.saveAndFlush(renter);
+	}
+
+	@Override
+	public Renter updateRenter(Renter renter) {
+		if(renter.getPassword() != null)
+		{
+			renter.setPassword(passwordEncoder.encode(renter.getPassword()));
 		}
+		return repoRenter.saveAndFlush(renter);
+	}
+
+	@Override
+	public void deleteRenter(Renter renter) {
+		repoRenter.delete(renter);
+	}
+
+	@Override
+	public List<Renter> findAllRenters() {
+		return repoRenter.findAll();
+	}
+
+	@Override
+	public Boolean createRenter(Renter renter) {
+		throw new UnsupportedOperationException("Unimplemented method 'createRenter'");
+	}
+
+	public Boolean checkPassword(Renter renter, String password) {
+		return false;
 	}
 	
 	public Renter getRenterById(UUID id) {

@@ -7,5 +7,7 @@ import com.spaceshare.backend.models.Amenity;
 
 @Repository
 public interface AmenityRepository extends JpaRepository<Amenity, Long> {
-    
+
+    boolean existsByAmenityName(String amenityName);
+
 }
