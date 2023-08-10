@@ -7,7 +7,7 @@ import com.spaceshare.backend.models.Renter;
 
 public interface RenterService {
 
-	Boolean createRenter(Renter renter);
+	List<Renter> getAllRenters();
 	
 	Renter getRenterById(UUID id);
 	
@@ -15,11 +15,9 @@ public interface RenterService {
 
 	Renter findRenterById(UUID id);
 
-	Renter saveRenter(Renter renter);
+	Boolean createRenter(Renter renter);
 
-	Renter updateRenter(Renter renter);
+	Renter updateRenter(UUID id, Renter renter);
 
-	void deleteRenter(Renter renter);
-	
-	List<Renter> findAllRenters();
+	Boolean deleteRenter(UUID id);
 }

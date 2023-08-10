@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
+import com.spaceshare.backend.models.Amenity;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.services.RenterService;
@@ -47,13 +49,31 @@ public class TenantController {
 						return favourite.getProperty();
 					}).toList();
 			return new ResponseEntity<>(favouriteProperties, HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		catch (ResourceNotFoundException e) {
+	}
+
+	@GetMapping("/all")
+	public ResponseEntity<List<Tenant>> getAllTenants() {
+		List<Tenant> tenants = svcTenant.getAllTenants();
+		if (tenants.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		catch(Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);			
-			}
+		return new ResponseEntity<List<Tenant>>(tenants, HttpStatus.OK);
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<Tenant> getTenantById(@PathVariable("id") UUID id) {
+
+		Tenant tenant = svcTenant.getTenantById(id);
+
+		if (tenant != null)
+			return new ResponseEntity<Tenant>(tenant, HttpStatus.OK);
+		else
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	// @PostMapping("/register")
@@ -67,74 +87,62 @@ public class TenantController {
 	// return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
 	// }
 	// }
-
+	@PostMapping("/register")
 	public ResponseEntity<Tenant> createTenant(@RequestBody Tenant tenant) {
 		try {
 
-			if (svcTenant.getTenantByEmail(tenant.getEmail()) != null) {
-				return new ResponseEntity<>(HttpStatus.CONFLICT);
+			Boolean success = svcTenant.saveTenant(tenant);
+			if (success) {
+				return new ResponseEntity<Tenant>(HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 
-			Tenant returnTenant = svcTenant.saveTenant(tenant);
-
-			return new ResponseEntity<Tenant>(returnTenant, HttpStatus.CREATED);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Tenant> getTenantById(@PathVariable("id") UUID id) {
-
-		Tenant tenant = svcTenant.getTenantById(id);
-
-		if (tenant != null) {
-
-			return new ResponseEntity<Tenant>(tenant, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<HttpStatus> deleteTenant(@PathVariable("id") UUID id) {
-		try {
-			Tenant tenant = svcTenant.getTenantById(id);
-			svcTenant.deleteTenant(tenant);
 
-			return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
+		try {
+			Boolean result = svcTenant.deleteTenant(id);
+
+			if (result)
+				return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
+			else
+				return new ResponseEntity<HttpStatus>(HttpStatus.EXPECTATION_FAILED);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
-			return new ResponseEntity<HttpStatus>(HttpStatus.EXPECTATION_FAILED);
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
+
 	}
 
 	@PutMapping("/update/{id}")
-	public ResponseEntity<Tenant> editTenant(@PathVariable("id") UUID id, @RequestBody Tenant inTenant) {
+	public ResponseEntity<Tenant> updateTenant(@PathVariable("id") UUID id, @RequestBody Tenant inTenant) {
 
-		Tenant renter = svcTenant.getTenantById(id);
-
-		if (renter != null) {
-			Tenant r = renter;
-
-            r.setAddress(inTenant.getAddress());
-			r.setCreatedAt(inTenant.getCreatedAt());
-			r.setDateOfBirth(inTenant.getDateOfBirth());
-			r.setEmail(inTenant.getEmail());
-			r.setFirstName(inTenant.getFirstName());
-			r.setIdentificationNumber(inTenant.getIdentificationNumber());
-			r.setLastName(inTenant.getLastName());
-			r.setPassword(inTenant.getPassword());
-			r.setPhone(inTenant.getPhone());
-			//r.setProfileImageUrl(inTenant.getProfileImageUrl());
-			r.setStatus(inTenant.getStatus());
-			r.setUpdatedAt(inTenant.getUpdatedAt());
-
-			Tenant updatedTenant = svcTenant.updateTenant(r);
-
-			return new ResponseEntity<Tenant>(updatedTenant, HttpStatus.OK);
-		} else {
+		try {
+			Tenant updatedTenant = svcTenant.updateTenant(id, inTenant);
+			if (updatedTenant != null)
+				return new ResponseEntity<Tenant>(updatedTenant, HttpStatus.OK);
+			else
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.spaceshare.backend.controllers;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Account;
 import com.spaceshare.backend.models.Renter;
+import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.services.RenterService;
 import com.spaceshare.backend.services.TenantService;
 
@@ -31,83 +34,109 @@ public class RenterController {
 
 	// @PostMapping("/register")
 	// public ResponseEntity<?> postRegisterRenter(@RequestBody Renter renter) {
-	// 	Boolean success = svcRenter.createRenter(renter);
-		
-	// 	if (success) {
-	// 		return new ResponseEntity<>(renter, HttpStatus.OK);
-	// 	}
-	// 	else {
-	// 		return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
-	// 	}
+	// Boolean success = svcRenter.createRenter(renter);
+
+	// if (success) {
+	// return new ResponseEntity<>(renter, HttpStatus.OK);
+	// } else {
+	// return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
 	// }
+	// }
+
+	@GetMapping("/all")
+	public ResponseEntity<List<Renter>> getAllRenters() {
+
+		try {
+			List<Renter> renters = svcRenter.getAllRenters();
+			if (renters.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+
+			return new ResponseEntity<List<Renter>>(renters, HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<Renter> getRenterById(@PathVariable("id") UUID id) {
+
+		try {
+			Renter renter = svcRenter.findRenterById(id);
+
+			if (renter != null) {
+				return new ResponseEntity<Renter>(renter, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+		}
+	}
 
 	@PostMapping("/register")
 	public ResponseEntity<Renter> createRenter(@RequestBody Renter renter) {
 		try {
-			if (svcRenter.getRenterByEmail(renter.getEmail()) != null) {
-				return new ResponseEntity<>(HttpStatus.CONFLICT);
+			Boolean success = svcRenter.createRenter(renter);
+
+			if (success) {
+				return new ResponseEntity<Renter>(HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+		}
+	}
 
-			Renter returnRenter = svcRenter.saveRenter(renter);
+	@PutMapping("/update/{id}")
+	public ResponseEntity<Renter> updateRenter(@PathVariable("id") UUID id, @RequestBody Renter inRenter) {
 
-			return new ResponseEntity<Renter>(returnRenter, HttpStatus.CREATED);
+		try {
+			Renter renter = svcRenter.updateRenter(id, inRenter);
+
+			if (renter != null)
+				return new ResponseEntity<Renter>(renter, HttpStatus.OK);
+			else
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Renter> getRenterById(@PathVariable("id") UUID id) {
-		
-		Renter renter = svcRenter.findRenterById(id);
-
-		if (renter != null) {
-
-			return new ResponseEntity<Renter>(renter, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<HttpStatus> deleteRenter(@PathVariable("id") UUID id) {
+
 		try {
-			Renter renter = svcRenter.findRenterById(id);
-			svcRenter.deleteRenter(renter);
-			
-			return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<HttpStatus>(HttpStatus.EXPECTATION_FAILED);
-		}
-	}
+			Boolean success = svcRenter.deleteRenter(id);
 
-	@PutMapping("/update/{id}")
-	public ResponseEntity<Renter> editRenter(@PathVariable("id") UUID id, @RequestBody Renter inRenter) {
-
-		Renter renter = svcRenter.findRenterById(id);
-
-		if (renter != null) {
-			Renter r = renter;
-
-            r.setAddress(inRenter.getAddress());
-			r.setCreatedAt(inRenter.getCreatedAt());
-			r.setDateOfBirth(inRenter.getDateOfBirth());
-			r.setEmail(inRenter.getEmail());
-			r.setFirstName(inRenter.getFirstName());
-			r.setIdentificationNumber(inRenter.getIdentificationNumber());
-			r.setLastName(inRenter.getLastName());
-			r.setPassword(inRenter.getPassword());
-			r.setPhone(inRenter.getPhone());
-			//r.setProfileImageUrl(inRenter.getProfileImageUrl());
-			r.setStatus(inRenter.getStatus());
-			r.setUpdatedAt(inRenter.getUpdatedAt());
-
-			Renter updatedRenter = svcRenter.updateRenter(r);
-
-			return new ResponseEntity<Renter>(updatedRenter, HttpStatus.OK);
-		} else {
+			if (success)
+				return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
+			else
+				return new ResponseEntity<HttpStatus>(HttpStatus.EXPECTATION_FAILED);
+		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 }
