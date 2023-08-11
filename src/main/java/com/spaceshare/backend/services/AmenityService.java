@@ -10,9 +10,9 @@ public interface AmenityService {
 
         public Amenity getAmenityById(Long id);
 
-        Amenity addAmenity(Amenity amenity);
+        boolean addAmenity(Amenity amenity);
 
-        Amenity updateAmenity(Amenity amenity);
+        boolean updateAmenity(Long id, Amenity updatedAmenity);
 
         boolean deleteAmenity(Long id);
 

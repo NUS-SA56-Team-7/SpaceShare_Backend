@@ -10,9 +10,9 @@ public interface FacilityService {
 
     Facility getFacilityById(Long id);
 
-    Facility addFacility(Facility facility);
+    boolean addFacility(Facility facility);
 
-    Facility updateFacility(Facility facility);
+    boolean updateFacility(Long id, Facility facility);
 
     boolean deleteFacility(Long id);
 

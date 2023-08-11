@@ -28,25 +28,27 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public Facility addFacility(Facility facility) {
+    public boolean addFacility(Facility facility) {
         if (!isFacilityNameExists(facility.getFacilityName())) {
-            return facilityRepository.save(facility);
+            facilityRepository.save(facility);
+            return true;
         }
-        return null;
+        return false;
     }
 
     @Override
-    public Facility updateFacility(Facility updatedFacility) {
-        Facility existingFacility = facilityRepository.findById(updatedFacility.getId()).orElse(null);
+    public boolean updateFacility(Long id, Facility updatedFacility) {
+        Facility existingFacility = facilityRepository.findById(id).orElse(null);
         if (existingFacility != null) {
             if (!isFacilityNameExists(updatedFacility.getFacilityName())) {
                 existingFacility.setFacilityName(updatedFacility.getFacilityName());
-                return facilityRepository.save(existingFacility);
+                facilityRepository.save(existingFacility);
+                return true;
             } else {
                 throw new RuntimeException("Name is already exist");
             }
         }
-        return null;
+        return false;
     }
 
     @Override

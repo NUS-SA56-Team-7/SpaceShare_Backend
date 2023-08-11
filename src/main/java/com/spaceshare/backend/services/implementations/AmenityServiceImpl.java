@@ -28,25 +28,27 @@ public class AmenityServiceImpl implements AmenityService {
     }
 
     @Override
-    public Amenity addAmenity(Amenity amenity) {
+    public boolean addAmenity(Amenity amenity) {
         if (!isAmenityNameExists(amenity.getAmenityName())) {
-            return amenityRepository.save(amenity);
+            amenityRepository.save(amenity);
+            return true;
         }
-        return null;
+        return false;
     }
 
     @Override
-    public Amenity updateAmenity(Amenity updatedAmenity) {
-        Amenity existingAmenity = amenityRepository.findById(updatedAmenity.getId()).orElse(null);
+    public boolean updateAmenity(Long id, Amenity updatedAmenity) {
+        Amenity existingAmenity = amenityRepository.findById(id).orElse(null);
         if (existingAmenity != null) {
             if (!isAmenityNameExists(updatedAmenity.getAmenityName())) {
                 existingAmenity.setAmenityName(updatedAmenity.getAmenityName());
-                return amenityRepository.save(existingAmenity);
+                amenityRepository.save(existingAmenity);
+                return true;
             } else {
                 throw new RuntimeException("Name is already exist");
             }
         }
-        return null;
+        return false;
     }
 
     @Override
