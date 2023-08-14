@@ -23,10 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
-import com.spaceshare.backend.models.Amenity;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.Tenant;
-import com.spaceshare.backend.services.RenterService;
 import com.spaceshare.backend.services.TenantService;
 
 @RestController

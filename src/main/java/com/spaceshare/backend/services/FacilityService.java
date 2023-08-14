@@ -10,12 +10,12 @@ public interface FacilityService {
 
     Facility getFacilityById(Long id);
 
-    boolean addFacility(Facility facility);
+    Boolean addFacility(Facility facility);
 
-    boolean updateFacility(Long id, Facility facility);
+    Boolean updateFacility(Long id, Facility facility);
 
-    boolean deleteFacility(Long id);
+    Boolean deleteFacility(Long id);
 
-    boolean isFacilityNameExists(String facilityName);
+    Boolean isFacilityNameExists(String facilityName);
 
 }

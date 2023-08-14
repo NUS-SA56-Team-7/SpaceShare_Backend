@@ -25,6 +25,7 @@ public class RenterServiceImpl implements RenterService {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
+	/*** Methods ***/
 	@Override
 	public List<Renter> getAllRenters() {
 		return repoRenter.findAll();

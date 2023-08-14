@@ -1,6 +1,8 @@
 package com.spaceshare.backend.services.implementations;
 
 import com.spaceshare.backend.repos.FacilityRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.spaceshare.backend.models.Facility;
 
@@ -11,12 +13,11 @@ import com.spaceshare.backend.services.FacilityService;
 @Service
 public class FacilityServiceImpl implements FacilityService {
 
-    private final FacilityRepository facilityRepository;
+    /*** Repositories ***/
+    @Autowired
+    FacilityRepository facilityRepository;
 
-    public FacilityServiceImpl(FacilityRepository facilityRepository) {
-        this.facilityRepository = facilityRepository;
-    }
-
+    /*** Methods ***/
     @Override
     public List<Facility> getAllFacilities() {
         return facilityRepository.findAll();
@@ -28,7 +29,7 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public boolean addFacility(Facility facility) {
+    public Boolean addFacility(Facility facility) {
         if (!isFacilityNameExists(facility.getFacilityName())) {
             facilityRepository.save(facility);
             return true;
@@ -37,7 +38,7 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public boolean updateFacility(Long id, Facility updatedFacility) {
+    public Boolean updateFacility(Long id, Facility updatedFacility) {
         Facility existingFacility = facilityRepository.findById(id).orElse(null);
         if (existingFacility != null) {
             if (!isFacilityNameExists(updatedFacility.getFacilityName())) {
@@ -52,7 +53,7 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public boolean deleteFacility(Long id) {
+    public Boolean deleteFacility(Long id) {
         if (facilityRepository.existsById(id)) {
             facilityRepository.deleteById(id);
             return true;
@@ -61,7 +62,7 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public boolean isFacilityNameExists(String facilityName) {
+    public Boolean isFacilityNameExists(String facilityName) {
         return facilityRepository.existsByFacilityName(facilityName);
     }
 

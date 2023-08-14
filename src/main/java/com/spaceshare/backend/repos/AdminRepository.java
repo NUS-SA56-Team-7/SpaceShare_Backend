@@ -9,5 +9,6 @@ import com.spaceshare.backend.models.Admin;
 
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, UUID> {
-    
+
+    boolean existsByEmail(String email);
 }

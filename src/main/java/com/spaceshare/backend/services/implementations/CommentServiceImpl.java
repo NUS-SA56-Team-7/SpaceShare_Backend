@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Comment;
-import com.spaceshare.backend.models.Favourite;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.repos.CommentRepository;

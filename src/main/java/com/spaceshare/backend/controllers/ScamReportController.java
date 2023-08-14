@@ -21,9 +21,11 @@ import com.spaceshare.backend.services.ScamReportService;
 @RequestMapping("/api/scamreport")
 public class ScamReportController {
 
+	/*** Services ***/
     @Autowired
     ScamReportService scamReportService;
 
+	/*** API Methods ***/
     @GetMapping("/all")
 	public ResponseEntity<List<ScamReport>> getAllScamReports() {
 

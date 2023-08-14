@@ -28,7 +28,8 @@ import com.spaceshare.backend.services.TenantService;
 @RestController
 @RequestMapping("/api/renter")
 public class RenterController {
-	
+
+	/*** Services ***/
 	@Autowired
 	RenterService svcRenter;
 
@@ -43,6 +44,7 @@ public class RenterController {
 	// }
 	// }
 
+	/*** API Methods ***/
 	@GetMapping("/all")
 	public ResponseEntity<List<Renter>> getAllRenters() {
 

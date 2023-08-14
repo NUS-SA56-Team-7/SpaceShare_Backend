@@ -17,6 +17,7 @@ import com.spaceshare.backend.services.FacilityService;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -24,12 +25,11 @@ import org.springframework.http.ResponseEntity;
 @RequestMapping("/api/facility")
 public class FacilityContoller {
 
-    private final FacilityService facilityService;
+    /*** Services ***/
+    @Autowired
+    FacilityService facilityService;
 
-    public FacilityContoller(FacilityService facilityService) {
-        this.facilityService = facilityService;
-    }
-
+    /*** API Methods ***/
     @GetMapping("/getAllFacilities")
     public ResponseEntity<List<Facility>> getAllFacilities() {
         try {
@@ -64,14 +64,14 @@ public class FacilityContoller {
     /**
      * create
      * 
-     * @param facility
+     * @requestbody facility
      * @return
      */
     @PostMapping
     public ResponseEntity<Facility> addFacility(@RequestBody @Validated Facility facility) {
         try {
             // Facility addedFacility = facilityService.addFacility(facility);
-            boolean success = facilityService.addFacility(facility);
+            Boolean success = facilityService.addFacility(facility);
 
             if (success) {
                 // return ResponseEntity.status(HttpStatus.CREATED).body(addedFacility);
@@ -92,14 +92,15 @@ public class FacilityContoller {
     /**
      * update
      * 
-     * @param facility
+     * @pathvariable id
+     * @requestbody facility
      * @return
      */
     @PutMapping("/update/{id}")
     public ResponseEntity<Facility> updateFacility(@PathVariable Long id, @RequestBody @Validated Facility facility) {
         try {
             // Facility updatedFacility = facilityService.updateFacility(id, facility);
-            boolean success = facilityService.updateFacility(id, facility);
+            Boolean success = facilityService.updateFacility(id, facility);
             if (success) {
                 return new ResponseEntity<>(HttpStatus.OK);
             }
@@ -118,14 +119,13 @@ public class FacilityContoller {
     /**
      * delete
      * 
-     * @param id
-     * @param facilityName
+     * @pathvariable id
      * @return
      */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteFacility(@PathVariable Long id) {
         try {
-            boolean deleted = facilityService.deleteFacility(id);
+            Boolean deleted = facilityService.deleteFacility(id);
             if (deleted) {
                 return new ResponseEntity<>(HttpStatus.OK);
             }

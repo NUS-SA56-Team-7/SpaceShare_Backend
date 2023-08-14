@@ -10,12 +10,12 @@ public interface AmenityService {
 
         public Amenity getAmenityById(Long id);
 
-        boolean addAmenity(Amenity amenity);
+        Boolean addAmenity(Amenity amenity);
 
-        boolean updateAmenity(Long id, Amenity updatedAmenity);
+        Boolean updateAmenity(Long id, Amenity updatedAmenity);
 
-        boolean deleteAmenity(Long id);
+        Boolean deleteAmenity(Long id);
 
-        boolean isAmenityNameExists(String amenityName);
+        Boolean isAmenityNameExists(String amenityName);
 
 }

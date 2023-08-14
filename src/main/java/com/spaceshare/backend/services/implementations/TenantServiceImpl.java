@@ -26,6 +26,7 @@ public class TenantServiceImpl implements TenantService {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
+	/*** Methods ***/
 	@Override
 	public List<Tenant> getAllTenants() {
 		return repoTenant.findAll();

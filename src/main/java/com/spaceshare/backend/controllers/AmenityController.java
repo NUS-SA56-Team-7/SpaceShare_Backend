@@ -7,6 +7,7 @@ import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Amenity;
 import com.spaceshare.backend.services.AmenityService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,12 +25,11 @@ import java.util.List;
 @RequestMapping("/api/amenity")
 public class AmenityController {
 
-    private final AmenityService amenityService;
+    /*** Services ***/
+    @Autowired
+    AmenityService amenityService;
 
-    public AmenityController(AmenityService amenityService) {
-        this.amenityService = amenityService;
-    }
-
+    /*** API Methods ***/
     /**
      * find all
      * 
@@ -55,7 +55,7 @@ public class AmenityController {
     /**
      * new find
      * 
-     * @param id
+     * @pathvariable id
      * @return
      */
     @GetMapping("/getAmenityById/{id}")
@@ -76,13 +76,13 @@ public class AmenityController {
     /**
      * create
      * 
-     * @param amenity
+     * @requestbody amenity
      * @return
      */
     @PostMapping("/create")
     public ResponseEntity<Amenity> addAmenity(@RequestBody @Validated Amenity amenity) {
         try {
-            boolean success = amenityService.addAmenity(amenity);
+            Boolean success = amenityService.addAmenity(amenity);
 
             if (success) {
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -102,13 +102,14 @@ public class AmenityController {
     /**
      * update name by id
      * 
-     * @param amenity
+     * @pathvariable id
+     * @requestbody amenity
      * @return
      */
     @PutMapping("/update/{id}")
     public ResponseEntity<Amenity> updateAmenity(@PathVariable Long id, @RequestBody @Validated Amenity amenity) {
         try {
-            boolean success = amenityService.updateAmenity(id, amenity);
+            Boolean success = amenityService.updateAmenity(id, amenity);
             if (success) {
                 return new ResponseEntity<>(HttpStatus.OK);
             }
@@ -126,14 +127,13 @@ public class AmenityController {
     /**
      * delete
      * 
-     * @param id
-     * @param amenityName
+     * @pathvariable id
      * @return
      */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAmenity(@PathVariable Long id) {
         try {
-            boolean deleted = amenityService.deleteAmenity(id);
+            Boolean deleted = amenityService.deleteAmenity(id);
             if (deleted) {
                 return new ResponseEntity<>(HttpStatus.OK);
             }

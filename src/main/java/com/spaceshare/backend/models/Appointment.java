@@ -39,8 +39,8 @@ public class Appointment {
     @NotNull
     private Time endTime;
 
-	@Column(columnDefinition = "TINYINT NOT NULL")
-    private ApproveStatus status = ApproveStatus.PENDING;
+	@Column(columnDefinition = "TINYINT")
+    private ApproveStatus status;
 
 	/*** Navigation Properties ***/
     @ManyToOne(optional = true)

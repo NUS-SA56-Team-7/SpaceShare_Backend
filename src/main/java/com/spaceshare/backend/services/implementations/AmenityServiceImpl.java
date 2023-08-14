@@ -1,6 +1,8 @@
 package com.spaceshare.backend.services.implementations;
 
 import com.spaceshare.backend.repos.AmenityRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spaceshare.backend.models.Amenity;
@@ -11,12 +13,11 @@ import com.spaceshare.backend.services.AmenityService;
 @Service
 public class AmenityServiceImpl implements AmenityService {
 
-    private final AmenityRepository amenityRepository;
+    /*** Repositories ***/
+    @Autowired
+    AmenityRepository amenityRepository;
 
-    public AmenityServiceImpl(AmenityRepository amenityRepository) {
-        this.amenityRepository = amenityRepository;
-    }
-
+    /*** Methods ***/
     @Override
     public List<Amenity> getAllAmenities() {
         return amenityRepository.findAll();
@@ -28,7 +29,7 @@ public class AmenityServiceImpl implements AmenityService {
     }
 
     @Override
-    public boolean addAmenity(Amenity amenity) {
+    public Boolean addAmenity(Amenity amenity) {
         if (!isAmenityNameExists(amenity.getAmenityName())) {
             amenityRepository.save(amenity);
             return true;
@@ -37,7 +38,7 @@ public class AmenityServiceImpl implements AmenityService {
     }
 
     @Override
-    public boolean updateAmenity(Long id, Amenity updatedAmenity) {
+    public Boolean updateAmenity(Long id, Amenity updatedAmenity) {
         Amenity existingAmenity = amenityRepository.findById(id).orElse(null);
         if (existingAmenity != null) {
             if (!isAmenityNameExists(updatedAmenity.getAmenityName())) {
@@ -52,7 +53,7 @@ public class AmenityServiceImpl implements AmenityService {
     }
 
     @Override
-    public boolean deleteAmenity(Long id) {
+    public Boolean deleteAmenity(Long id) {
         if (amenityRepository.existsById(id)) {
             amenityRepository.deleteById(id);
             return true;
@@ -61,7 +62,7 @@ public class AmenityServiceImpl implements AmenityService {
     }
 
     @Override
-    public boolean isAmenityNameExists(String amenityName) {
+    public Boolean isAmenityNameExists(String amenityName) {
         return amenityRepository.existsByAmenityName(amenityName);
     }
 

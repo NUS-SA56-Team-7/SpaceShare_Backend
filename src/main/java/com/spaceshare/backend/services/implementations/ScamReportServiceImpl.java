@@ -16,12 +16,14 @@ import com.spaceshare.backend.services.ScamReportService;
 @Service
 public class ScamReportServiceImpl implements ScamReportService {
 
+    /*** Repositories ***/
     @Autowired
     ScamReportRepository scamReportRepository;
 
     @Autowired
     PropertyRepository propertyRepository;
 
+    /*** Methods ***/
     @Override
     public List<ScamReport> getAllScamReports() {
         return scamReportRepository.findAll();
