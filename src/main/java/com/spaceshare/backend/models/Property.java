@@ -1,4 +1,5 @@
 package com.spaceshare.backend.models;
+
 import java.util.List;
 
 import javax.persistence.Column;
@@ -14,9 +15,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.spaceshare.backend.models.enums.ApproveStatus;
 import com.spaceshare.backend.models.enums.Furnishment;
 import com.spaceshare.backend.models.enums.PostType;
 import com.spaceshare.backend.models.enums.PropertyType;
+import com.spaceshare.backend.models.enums.RoomMateType;
 import com.spaceshare.backend.models.enums.RoomType;
 import com.spaceshare.backend.models.enums.Status;
 
@@ -29,24 +32,24 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "Properties")
 public class Property extends Common {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
     private String title;
-    
+
     private String description;
 
-	@Column(columnDefinition = "TINYINT NOT NULL")
+    @Column(columnDefinition = "TINYINT NOT NULL")
     private PropertyType propertyType;
-	
-	@Column(columnDefinition = "TINYINT NOT NULL")
+
+    @Column(columnDefinition = "TINYINT NOT NULL")
     private RoomType roomType;
 
     @NotNull
@@ -59,7 +62,7 @@ public class Property extends Common {
     private String postalCode;
 
     private Integer roomArea;
-    
+
     @Column(columnDefinition = "TINYINT NOT NULL")
     private Furnishment furnishment;
 
@@ -71,16 +74,22 @@ public class Property extends Common {
 
     @Column(columnDefinition = "TINYINT")
     private Integer numTenants;
-	
-	private String nearbyDesc;
 
-	@Column(columnDefinition = "TINYINT NOT NULL")
+    private String nearbyDesc;
+
+    @Column(columnDefinition = "TINYINT NOT NULL")
     private PostType postType;
 
-	@Column(columnDefinition = "TINYINT NOT NULL")
+    @Column(columnDefinition = "TINYINT NULL")
+    private RoomMateType roomMateType;
+
+    @Column(columnDefinition = "TINYINT NOT NULL")
+    private ApproveStatus approveStatus = ApproveStatus.PENDING;
+
+    @Column(columnDefinition = "TINYINT NOT NULL")
     private Status status = Status.ACTIVE;
 
-	/*** Navigation Properties ***/
+    /*** Navigation Properties ***/
     @ManyToOne
     @JsonIgnore
     private Renter renter;
@@ -88,7 +97,7 @@ public class Property extends Common {
     @ManyToOne
     @JsonIgnore
     private Tenant tenant;
-    
+
     @OneToMany(targetEntity = Favourite.class, mappedBy = "property")
     @ToString.Exclude
     private List<Favourite> favourites;
@@ -96,7 +105,7 @@ public class Property extends Common {
     @OneToMany(targetEntity = PropertyImage.class, mappedBy = "property")
     @ToString.Exclude
     private List<PropertyImage> propertyImages;
-    
+
     @Transient
     private List<String> propertyImageURLs;
 
@@ -107,15 +116,15 @@ public class Property extends Common {
     @OneToMany(targetEntity = PropertyAmenity.class, mappedBy = "property")
     @ToString.Exclude
     private List<PropertyAmenity> propertyAmenities;
-    
+
     @OneToMany(targetEntity = PropertyDoc.class, mappedBy = "property")
     @ToString.Exclude
     private List<PropertyDoc> propertyDocs;
-    
+
     @OneToMany(targetEntity = Appointment.class, mappedBy = "property")
     @ToString.Exclude
     private List<Appointment> appointments;
-    
+
     @OneToMany(targetEntity = Comment.class, mappedBy = "property")
     @ToString.Exclude
     private List<Comment> comments;
