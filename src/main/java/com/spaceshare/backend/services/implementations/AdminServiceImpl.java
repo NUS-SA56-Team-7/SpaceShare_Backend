@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Admin;
 import com.spaceshare.backend.repos.AdminRepository;
 import com.spaceshare.backend.services.AdminService;
@@ -16,6 +18,10 @@ public class AdminServiceImpl implements AdminService {
     /*** Repositories ***/
     @Autowired
     AdminRepository adminRepository;
+
+	/*** Miscellaneous ***/
+	@Autowired
+	PasswordEncoder passwordEncoder;
 
     /*** Methods ***/
     @Override
@@ -30,18 +36,22 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Boolean createAdmin(Admin admin) {
-        if (!isEmailExists(admin.getEmail())) {
-            adminRepository.saveAndFlush(admin);
-            return true;
+        try {
+            if (!isEmailExists(admin.getEmail()) && admin.getPassword() != null)
+                    admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+                
+                adminRepository.saveAndFlush(admin);
+                return true;
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
     @Override
     public Boolean updatePassword(UUID id, String password) {
         Admin admin = adminRepository.findById(id).orElse(null);
         if (admin != null) {
-            admin.setPassword(password);
+            admin.setPassword(passwordEncoder.encode(password));
             adminRepository.saveAndFlush(admin);
             return true;
         }
@@ -60,6 +70,12 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Boolean isEmailExists(String email) {
         return adminRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Admin getAdminbyEmail(String email) {
+        return adminRepository.findByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException());
     }
     
 }

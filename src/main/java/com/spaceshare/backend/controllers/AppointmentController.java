@@ -1,9 +1,11 @@
 package com.spaceshare.backend.controllers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
@@ -41,6 +44,27 @@ public class AppointmentController {
         try {
             List<Appointment> appointments = appointmentService.getAllAppointmentsByProperty(propertyId);
             return new ResponseEntity<>(appointments, HttpStatus.OK);
+        }
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+    }
+
+    /**
+     * find by appointment id and appointment date
+     * 
+     * @pathvariable id
+     * @param appointment date
+     * @return
+     */
+    @GetMapping("/property/{propertyId}/appointment_date")
+    public ResponseEntity<?> getAppointmentByDate(@PathVariable("propertyId") Long propertyId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appointmentDate) {
+        try {
+            List<Appointment> appointments = appointmentService.getAppointmentByDate(propertyId, appointmentDate);
+            return new ResponseEntity<>(appointments, HttpStatus.FOUND);
         }
 		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

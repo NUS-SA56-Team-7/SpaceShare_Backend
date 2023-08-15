@@ -9,8 +9,6 @@ import com.spaceshare.backend.models.enums.PropertyType;
 import com.spaceshare.backend.models.enums.RoomMateType;
 import com.spaceshare.backend.models.enums.RoomType;
 
-import java.util.Map;
-
 public interface PropertyService {
 
 	Boolean createProperty(Property property);

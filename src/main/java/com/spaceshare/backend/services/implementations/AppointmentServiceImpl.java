@@ -50,6 +50,16 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public List<Appointment> getAppointmentByDate(Long propertyId, LocalDate appointmentDate) {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        return appointments.stream()
+                .filter(appointment ->
+                    appointment.getProperty().getId().equals(propertyId) &&
+                    appointment.getAppointmentDate().equals(appointmentDate)
+                ).collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public Boolean createAppointment(Long propertyId, List<Appointment> appointments) {
         Property property = propertyRepository.findById(propertyId).orElseThrow(() -> new ResourceNotFoundException());

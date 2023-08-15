@@ -7,16 +7,18 @@ import com.spaceshare.backend.models.Admin;
 
 public interface AdminService {
 
-        List<Admin> getAllAdmins();
+	List<Admin> getAllAdmins();
 
-        Admin getAdminById(UUID id);
+	Admin getAdminById(UUID id);
 
-        Boolean createAdmin(Admin admin);
+	Admin getAdminbyEmail(String email);
 
-        Boolean updatePassword(UUID id, String password);
+	Boolean createAdmin(Admin admin);
 
-        Boolean deleteAdmin(UUID id);
+	Boolean updatePassword(UUID id, String password);
 
-        Boolean isEmailExists(String email);
+	Boolean deleteAdmin(UUID id);
+
+	Boolean isEmailExists(String email);
     
 }

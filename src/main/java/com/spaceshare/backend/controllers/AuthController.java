@@ -25,9 +25,11 @@ import org.springframework.web.client.RestTemplate;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.functions.GenerateOTP;
 import com.spaceshare.backend.models.Account;
+import com.spaceshare.backend.models.Admin;
 import com.spaceshare.backend.models.OTP;
 import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.Tenant;
+import com.spaceshare.backend.services.AdminService;
 import com.spaceshare.backend.services.EmailService;
 import com.spaceshare.backend.services.OtpService;
 import com.spaceshare.backend.services.RenterService;
@@ -49,10 +51,22 @@ public class AuthController {
 	
 	@Autowired
 	OtpService svcOtp;
+
+	@Autowired
+	AdminService svcAdmin;
 	
 	/*** Miscellaneous ***/
 	@Autowired
 	PasswordEncoder passwordEncoder;
+
+	@Value("${MASTER_ID}")
+	private String masterId;
+
+	@Value("${MASTER_EMAIL}")
+	private String masterEmail;
+
+	@Value("${MASTER_PASSWORD}")
+	private String masterPassword;
 	
 	@Value("${GOOGLE_RECAPTCHA_SECRET_KEY}")
 	private String GOOGLE_RECAPTCHA_SECRET_KEY;
@@ -314,5 +328,64 @@ public class AuthController {
 		Map<String, Object> response = responseEntity.getBody();
         
         return (Boolean)response.get("success");
+	}
+
+	/*** API Methods ***/
+	/* Admin */
+	@PostMapping("/login/master")
+	public ResponseEntity<?> postLoginMaster(
+			@RequestBody Account account,
+			HttpSession session) {
+		try {
+			if (account.getEmail().equals(masterEmail) && account.getPassword().equals(masterPassword)) {
+				session.setAttribute("userId", masterId);
+				
+				Map<String, String> resBody = new HashMap<String, String>();
+				resBody.put("id", masterId);
+				resBody.put("email", masterEmail);
+				return new ResponseEntity<>(resBody, HttpStatus.OK);
+			}
+			else {
+				Map<String, String> resBody = Map.of("password", "Wrong password");
+				return new ResponseEntity<>(resBody, HttpStatus.UNAUTHORIZED);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			Map<String, String> resBody = Map.of("email", "Account does not exist");
+			return new ResponseEntity<>(resBody, HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			Map<String, String> resBody = Map.of("error", e.getMessage());
+			return new ResponseEntity<>(resBody, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping("/login/admin")
+	public ResponseEntity<?> postLoginAdmin(
+			@RequestBody Account account,
+			HttpSession session) {
+		try {
+			Admin admin = svcAdmin.getAdminbyEmail(account.getEmail());
+			if (passwordEncoder.matches(account.getPassword(), admin.getPassword())) {
+				session.setAttribute("userId", admin.getId());
+				
+				Map<String, String> resBody = new HashMap<String, String>();
+				resBody.put("id", admin.getId().toString());
+				resBody.put("email", admin.getEmail());
+				return new ResponseEntity<>(resBody, HttpStatus.OK);
+			}
+			else {
+				Map<String, String> resBody = Map.of("password", "Wrong password");
+				return new ResponseEntity<>(resBody, HttpStatus.UNAUTHORIZED);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			Map<String, String> resBody = Map.of("email", "Account does not exist");
+			return new ResponseEntity<>(resBody, HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			Map<String, String> resBody = Map.of("error", e.getMessage());
+			return new ResponseEntity<>(resBody, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

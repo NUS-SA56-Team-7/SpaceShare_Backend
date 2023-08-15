@@ -1,5 +1,6 @@
 package com.spaceshare.backend.repos;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ import com.spaceshare.backend.models.Admin;
 public interface AdminRepository extends JpaRepository<Admin, UUID> {
 
     boolean existsByEmail(String email);
+
+    Optional<Admin> findByEmail(String email);
 }
