@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -21,10 +22,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spaceshare.backend.dtos.TenantDTO;
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.Tenant;
+import com.spaceshare.backend.services.RecentSearchService;
+import com.spaceshare.backend.services.RenterService;
 import com.spaceshare.backend.services.TenantService;
 
 @RestController
@@ -35,9 +39,11 @@ public class TenantController {
 	@Autowired
 	TenantService svcTenant;
 
+	@Autowired
+	RecentSearchService svcRecentSearch;
+
 	/*** API Methods ***/
 	@GetMapping("/{id}/favourites")
-
 	public ResponseEntity<?> getAllFavourites(
 			@PathVariable UUID id) {
 		try {
@@ -46,6 +52,7 @@ public class TenantController {
 					.map((favourite) -> {
 						return favourite.getProperty();
 					}).toList();
+
 			return new ResponseEntity<>(favouriteProperties, HttpStatus.OK);
 		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -63,15 +70,43 @@ public class TenantController {
 		return new ResponseEntity<List<Tenant>>(tenants, HttpStatus.OK);
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Tenant> getTenantById(@PathVariable("id") UUID id) {
+	@GetMapping("/{id}/favourites/id")
+	public ResponseEntity<?> getAllFavouriteIDs(
+			@PathVariable UUID id) {
+		try {
+			List<Long> favouritePropertyIDs = svcTenant.getTenantById(id).getFavourites()
+					.stream()
+					.map((favourite) -> {
+						return favourite.getProperty().getId();
+					}).toList();
 
-		Tenant tenant = svcTenant.getTenantById(id);
-
-		if (tenant != null)
-			return new ResponseEntity<Tenant>(tenant, HttpStatus.OK);
-		else
+			return new ResponseEntity<>(favouritePropertyIDs, HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PostMapping("/{id}/recent/create")
+	public ResponseEntity<?> postCreateRecentSearch(
+			@PathVariable UUID id,
+			@RequestBody Map<String, String> reqBody) {
+		try {
+			Boolean success = svcRecentSearch.createRecentSearch(
+					id, Long.parseLong(reqBody.get("propertyId")));
+			if (success) {
+				return new ResponseEntity<>(HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	// @PostMapping("/register")
@@ -104,6 +139,17 @@ public class TenantController {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getTenantById(@PathVariable UUID id) {
+		Tenant tenant = svcTenant.getTenantById(id);
+
+		if (tenant != null) {
+			return new ResponseEntity<>(tenant, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 	}
 
 	@DeleteMapping("/delete/{id}")

@@ -6,16 +6,15 @@ import java.util.List;
 
 public interface AmenityService {
 
-	List<Amenity> getAllAmenities();
+    List<Amenity> getAllAmenities();
 
-	public Amenity getAmenityById(Long id);
+    Amenity getAmenityById(Long id);
 
-	Boolean addAmenity(Amenity amenity);
+    Amenity addAmenity(Amenity amenity);
 
-	Boolean updateAmenity(Long id, Amenity updatedAmenity);
+    // Amenity updateAmenity(Long id, Amenity amenity);
 
-	Boolean deleteAmenity(Long id);
+    Boolean deleteAmenity(Long id);
 
-	Boolean isAmenityNameExists(String amenityName);
-
+    Boolean isAmenityNameExists(String amenityName);
 }

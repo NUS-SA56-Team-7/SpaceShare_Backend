@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,7 +26,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=false)
 @Entity
 @Table(name = "Comments")
-public class Comment extends Common {
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +49,6 @@ public class Comment extends Common {
     private Comment baseComment;
 
     @OneToMany(mappedBy = "baseComment")
-    @ToString.Exclude
+    @JsonIgnore
     private List<Comment> replies;
 }

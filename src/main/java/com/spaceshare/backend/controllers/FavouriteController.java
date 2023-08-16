@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,7 +36,7 @@ public class FavouriteController {
 					Long.parseLong(reqBody.get("propertyId")));
 			
 			if (success) {
-				return new ResponseEntity<>(HttpStatus.OK);
+				return new ResponseEntity<>(HttpStatus.CREATED);
 			}
 			else {
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -45,7 +46,7 @@ public class FavouriteController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		catch (BadRequestException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 		catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -58,7 +59,7 @@ public class FavouriteController {
 			@RequestParam UUID tenantId,
 			@RequestParam Long propertyId) {
 		try {
-			if (svcFavourite.deleteFavourite(propertyId)) {
+			if (svcFavourite.deleteFavourite(tenantId, propertyId)) {
 				return new ResponseEntity<>(HttpStatus.OK);
 			}
 			else {
@@ -67,6 +68,9 @@ public class FavouriteController {
 		}
 		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

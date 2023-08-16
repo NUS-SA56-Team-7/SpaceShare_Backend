@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,9 +20,9 @@ import com.spaceshare.backend.models.enums.ApproveStatus;
 import com.spaceshare.backend.models.enums.Furnishment;
 import com.spaceshare.backend.models.enums.PostType;
 import com.spaceshare.backend.models.enums.PropertyType;
-import com.spaceshare.backend.models.enums.RoomMateType;
 import com.spaceshare.backend.models.enums.RoomType;
 import com.spaceshare.backend.models.enums.Status;
+import com.spaceshare.backend.models.enums.TenantType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -81,7 +82,7 @@ public class Property extends Common {
     private PostType postType;
 
     @Column(columnDefinition = "TINYINT NULL")
-    private RoomMateType roomMateType;
+    private TenantType tenantType;
 
     @Column(columnDefinition = "TINYINT NOT NULL")
     private ApproveStatus approveStatus = ApproveStatus.PENDING;
@@ -89,17 +90,18 @@ public class Property extends Common {
     @Column(columnDefinition = "TINYINT NOT NULL")
     private Status status = Status.ACTIVE;
 
+    private Long viewCount = 0L;
+
     /*** Navigation Properties ***/
     @ManyToOne
-    @JsonIgnore
     private Renter renter;
 
     @ManyToOne
-    @JsonIgnore
     private Tenant tenant;
 
     @OneToMany(targetEntity = Favourite.class, mappedBy = "property")
     @ToString.Exclude
+    @JsonIgnore
     private List<Favourite> favourites;
 
     @OneToMany(targetEntity = PropertyImage.class, mappedBy = "property")
@@ -113,23 +115,35 @@ public class Property extends Common {
     @ToString.Exclude
     private List<PropertyFacility> propertyFacilities;
 
+    @Transient
+    private List<Long> propertyFacilityIDs;
+
     @OneToMany(targetEntity = PropertyAmenity.class, mappedBy = "property")
     @ToString.Exclude
     private List<PropertyAmenity> propertyAmenities;
+
+    @Transient
+    private List<Long> propertyAmenityIDs;
 
     @OneToMany(targetEntity = PropertyDoc.class, mappedBy = "property")
     @ToString.Exclude
     private List<PropertyDoc> propertyDocs;
 
+    @Transient
+    private List<String> propertyDocURLs;
+
     @OneToMany(targetEntity = Appointment.class, mappedBy = "property")
     @ToString.Exclude
+    @JsonIgnore
     private List<Appointment> appointments;
 
     @OneToMany(targetEntity = Comment.class, mappedBy = "property")
     @ToString.Exclude
+    @JsonIgnore
     private List<Comment> comments;
 
     @OneToMany(targetEntity = ScamReport.class, mappedBy = "property")
     @ToString.Exclude
+    @JsonIgnore
     private List<ScamReport> scamReports;
 }

@@ -89,15 +89,16 @@ public class AuthController {
 	public ResponseEntity<?> postLoginRenter(
 			@RequestBody Account account,
 			HttpSession session) {
+		
+		if (account.getEmail() == null || account.getPassword() == null)
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		
 		try {
 			Renter existingRenter = svcRenter.getRenterByEmail(account.getEmail());
 			if (passwordEncoder.matches(account.getPassword(), existingRenter.getPassword())) {
 				session.setAttribute("userId", existingRenter.getId());
 				
-				Map<String, String> resBody = new HashMap<String, String>();
-				resBody.put("id", existingRenter.getId().toString());
-				resBody.put("email", existingRenter.getEmail());
-				return new ResponseEntity<>(resBody, HttpStatus.OK);
+				return new ResponseEntity<>(existingRenter, HttpStatus.OK);
 			}
 			else {
 				Map<String, String> resBody = Map.of("password", "Wrong password");
@@ -206,15 +207,16 @@ public class AuthController {
 	public ResponseEntity<?> postLoginTenant(
 			@RequestBody Account account,
 			HttpSession session) {
+		
+		if (account.getEmail() == null || account.getPassword() == null)
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		
 		try {
 			Tenant existingTenant = svcTenant.getTenantByEmail(account.getEmail());
 			if (passwordEncoder.matches(account.getPassword(), existingTenant.getPassword())) {
 				session.setAttribute("userId", existingTenant.getId());
 				
-				Map<String, String> resBody = new HashMap<String, String>();
-				resBody.put("id", existingTenant.getId().toString());
-				resBody.put("email", existingTenant.getEmail());
-				return new ResponseEntity<>(resBody, HttpStatus.OK);
+				return new ResponseEntity<>(existingTenant, HttpStatus.OK);
 			}
 			else {
 				Map<String, String> resBody = Map.of("password", "Wrong password");

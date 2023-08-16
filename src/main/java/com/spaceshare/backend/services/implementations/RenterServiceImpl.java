@@ -16,11 +16,11 @@ import com.spaceshare.backend.services.RenterService;
 
 @Service
 public class RenterServiceImpl implements RenterService {
-	
+
 	/*** Repositories ***/
 	@Autowired
 	RenterRepository repoRenter;
-	
+
 	/*** Miscellaneous ***/
 	@Autowired
 	PasswordEncoder passwordEncoder;
@@ -29,7 +29,7 @@ public class RenterServiceImpl implements RenterService {
 	@Override
 	public List<Renter> getAllRenters() {
 		return repoRenter.findAll();
-	}	
+	}
 
 	@Override
 	public Renter findRenterById(UUID id) {
@@ -78,26 +78,25 @@ public class RenterServiceImpl implements RenterService {
 	@Override
 	public Boolean deleteRenter(UUID id) {
 		Renter renter = getRenterById(id);
-		if(renter != null) {
+		if (renter != null) {
 			renter.setStatus(Status.INACTIVE);
 			repoRenter.saveAndFlush(renter);
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
-		
+
 	}
 
 	public Boolean checkPassword(Renter renter, String password) {
 		return false;
 	}
-	
+
 	public Renter getRenterById(UUID id) {
 		return repoRenter.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException());
 	}
-	
+
 	public Renter getRenterByEmail(String email) {
 		return repoRenter.findByEmail(email)
 				.orElseThrow(() -> new ResourceNotFoundException());

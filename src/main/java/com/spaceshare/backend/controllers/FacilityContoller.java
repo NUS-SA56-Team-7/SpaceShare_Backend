@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
+import com.spaceshare.backend.exceptions.DuplicateResourceException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Facility;
 import com.spaceshare.backend.services.FacilityService;
@@ -30,111 +31,67 @@ public class FacilityContoller {
     FacilityService facilityService;
 
     /*** API Methods ***/
-    @GetMapping("/getAllFacilities")
-    public ResponseEntity<List<Facility>> getAllFacilities() {
+    @GetMapping("/")
+    public ResponseEntity<?> getAllFacilities() {
         try {
             List<Facility> facilities = facilityService.getAllFacilities();
             if (facilities.isEmpty()) {
-                return ResponseEntity.noContent().build();
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(facilities, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/getFacilityById/{id}")
-    public ResponseEntity<Facility> getFacilityById(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getFacilityById(@PathVariable Long id) {
         try {
             Facility facility = facilityService.getFacilityById(id);
-            if (facility == null) {
-                return ResponseEntity.notFound().build();
-            }
-            // return ResponseEntity.ok(facility);
             return new ResponseEntity<>(facility, HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**
-     * create
-     * 
-     * @requestbody facility
-     * @return
-     */
-    @PostMapping
-    public ResponseEntity<Facility> addFacility(@RequestBody @Validated Facility facility) {
+    @PostMapping("/create")
+    public ResponseEntity<?> postNewFacility(
+            @RequestBody Facility facility) {
         try {
-            // Facility addedFacility = facilityService.addFacility(facility);
-            Boolean success = facilityService.addFacility(facility);
-
-            if (success) {
-                // return ResponseEntity.status(HttpStatus.CREATED).body(addedFacility);
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            facilityService.addFacility(facility);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (DuplicateResourceException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**
-     * update
-     * 
-     * @pathvariable id
-     * @requestbody facility
-     * @return
-     */
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Facility> updateFacility(@PathVariable Long id, @RequestBody @Validated Facility facility) {
-        try {
-            // Facility updatedFacility = facilityService.updateFacility(id, facility);
-            Boolean success = facilityService.updateFacility(id, facility);
-            if (success) {
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            // return ResponseEntity.ok(updatedFacility);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PutMapping("/update/{id}")
+//    public ResponseEntity<Facility> updateFacility(
+//            @PathVariable Long id,
+//            @RequestBody Facility facility) {
+//        Facility updatedFacility = facilityService.updateFacility(id, facility);
+//        if (updatedFacility == null) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
-    /**
-     * delete
-     * 
-     * @pathvariable id
-     * @return
-     */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteFacility(@PathVariable Long id) {
+    public ResponseEntity<?> deleteFacility(@PathVariable Long id) {
         try {
             Boolean deleted = facilityService.deleteFacility(id);
             if (deleted) {
                 return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

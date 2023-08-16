@@ -3,7 +3,7 @@ package com.spaceshare.backend.services;
 import java.util.List;
 import java.util.UUID;
 
-import com.spaceshare.backend.models.Comment;
+import com.spaceshare.backend.dtos.CommentDTO;
 
 public interface CommentService {
     
@@ -11,7 +11,7 @@ public interface CommentService {
 	
 	Boolean createReply(UUID tenantId, Long commentId, String reply);
 	
-	List<Comment> getBaseComments(Long propertyId);
+	List<CommentDTO> getBaseComments(Long propertyId);
 	
 	Boolean deleteCommentAndReplies(Long commentId);
 	

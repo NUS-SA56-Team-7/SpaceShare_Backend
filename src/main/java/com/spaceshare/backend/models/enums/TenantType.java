@@ -1,7 +1,8 @@
 package com.spaceshare.backend.models.enums;
 
-public enum RoomMateType {
+public enum TenantType {
     MALE,
     FEMALE,
-    COUPLE
+    COUPLE,
+    FAMILY
 }

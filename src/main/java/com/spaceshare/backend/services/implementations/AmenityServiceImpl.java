@@ -3,8 +3,13 @@ package com.spaceshare.backend.services.implementations;
 import com.spaceshare.backend.repos.AmenityRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.spaceshare.backend.exceptions.BadRequestException;
+import com.spaceshare.backend.exceptions.DuplicateResourceException;
+import com.spaceshare.backend.exceptions.InternalServerErrorException;
+import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Amenity;
 
 import java.util.List;
@@ -18,52 +23,56 @@ public class AmenityServiceImpl implements AmenityService {
     AmenityRepository amenityRepository;
 
     /*** Methods ***/
-    @Override
     public List<Amenity> getAllAmenities() {
         return amenityRepository.findAll();
     }
 
-    @Override
     public Amenity getAmenityById(Long id) {
-        return amenityRepository.findById(id).orElse(null);
+        return amenityRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException());
     }
 
-    @Override
-    public Boolean addAmenity(Amenity amenity) {
-        if (!isAmenityNameExists(amenity.getAmenityName())) {
-            amenityRepository.save(amenity);
-            return true;
+    public Amenity addAmenity(Amenity amenity) {
+        if (isAmenityNameExists(amenity.getAmenityName()))
+            throw new DuplicateResourceException();
+        try {
+            return amenityRepository.save(amenity);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-        return false;
     }
 
-    @Override
-    public Boolean updateAmenity(Long id, Amenity updatedAmenity) {
-        Amenity existingAmenity = amenityRepository.findById(id).orElse(null);
-        if (existingAmenity != null) {
-            if (!isAmenityNameExists(updatedAmenity.getAmenityName())) {
-                existingAmenity.setAmenityName(updatedAmenity.getAmenityName());
-                amenityRepository.save(existingAmenity);
+    // public Amenity updateAmenity(Long id, Amenity updatedAmenity) {
+    // Amenity existingAmenity =
+    // amenityRepository.findById(updatedAmenity.getId()).orElse(null);
+    // if (existingAmenity != null) {
+    // if (!isAmenityNameExists(updatedAmenity.getAmenityName())) {
+    // existingAmenity.setAmenityName(updatedAmenity.getAmenityName());
+    // amenityRepository.save(existingAmenity);
+    // return true;
+    // } else {
+    // throw new RuntimeException("Name is already exist");
+    // }
+    // }
+    // return false;
+    // }
+
+    public Boolean deleteAmenity(Long id) {
+        try {
+            if (amenityRepository.existsById(id)) {
+                amenityRepository.deleteById(id);
                 return true;
             } else {
-                throw new RuntimeException("Name is already exist");
+                return false;
             }
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-        return false;
     }
 
-    @Override
-    public Boolean deleteAmenity(Long id) {
-        if (amenityRepository.existsById(id)) {
-            amenityRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     public Boolean isAmenityNameExists(String amenityName) {
         return amenityRepository.existsByAmenityName(amenityName);
     }
-
 }

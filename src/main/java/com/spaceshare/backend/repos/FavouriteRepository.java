@@ -1,6 +1,7 @@
 package com.spaceshare.backend.repos;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,6 @@ import com.spaceshare.backend.models.Favourite;
 public interface FavouriteRepository extends JpaRepository<Favourite, Long> {
     
 	List<Favourite> findByTenantId(UUID tenantId);
+	
+	Optional<Favourite> findByTenantIdAndPropertyId(UUID tenantId, Long propertyId);
 }

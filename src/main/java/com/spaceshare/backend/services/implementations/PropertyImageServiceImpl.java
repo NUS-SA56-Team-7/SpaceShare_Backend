@@ -1,11 +1,13 @@
 package com.spaceshare.backend.services.implementations;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.PropertyImage;
 import com.spaceshare.backend.repos.PropertyImageRepository;
@@ -23,7 +25,24 @@ public class PropertyImageServiceImpl implements PropertyImageService {
 	PropertyImageRepository repoPropertyImage;
 	
 	/*** Methods ***/
-	public Boolean createPropertyImages(Property property, List<String> propertyImageURLs) {
+	@Transactional
+	public List<PropertyImage> createPropertyImages(Property property, List<String> propertyImageURLs) {
+		
+		List<PropertyImage> propertyImages = new ArrayList<PropertyImage>();
+		
+		for (String imageURL: propertyImageURLs) {
+			PropertyImage propertyImage = new PropertyImage();
+			propertyImage.setImageUrl(imageURL);
+			propertyImage.setProperty(property);
+			
+			propertyImages.add(repoPropertyImage.save(propertyImage));
+		}
+
+		return propertyImages;
+	}
+	
+	@Transactional
+	public Boolean updatePropertyImages(Property property, List<String> propertyImageURLs) {
 		try {
 			for (String imageURL: propertyImageURLs) {
 				PropertyImage propertyImage = new PropertyImage();

@@ -1,8 +1,6 @@
 package com.spaceshare.backend.controllers;
 
-import org.springframework.validation.annotation.Validated;
-
-import com.spaceshare.backend.exceptions.BadRequestException;
+import com.spaceshare.backend.exceptions.DuplicateResourceException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Amenity;
 import com.spaceshare.backend.services.AmenityService;
@@ -30,120 +28,71 @@ public class AmenityController {
     AmenityService amenityService;
 
     /*** API Methods ***/
-    /**
-     * find all
-     * 
-     * @return
-     */
-    @GetMapping("/getAllAmenities")
-    public ResponseEntity<List<Amenity>> getAllAmenities() {
+    @GetMapping("/")
+    public ResponseEntity<?> getAllAmenities() {
         try {
-            // List<Amenity> amenities = amenityService.getAllAmenities();
             List<Amenity> amenities = amenityService.getAllAmenities();
             if (amenities.isEmpty()) {
-                return ResponseEntity.noContent().build();
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(amenities, HttpStatus.OK);
-
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**
-     * new find
-     * 
-     * @pathvariable id
-     * @return
-     */
-    @GetMapping("/getAmenityById/{id}")
-    public ResponseEntity<Amenity> getAmenityById(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAmenityById(@PathVariable Long id) {
         try {
             Amenity amenity = amenityService.getAmenityById(id);
-            if (amenity == null) {
-                return ResponseEntity.notFound().build();
-            }
             return new ResponseEntity<>(amenity, HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**
-     * create
-     * 
-     * @requestbody amenity
-     * @return
-     */
     @PostMapping("/create")
-    public ResponseEntity<Amenity> addAmenity(@RequestBody @Validated Amenity amenity) {
+    public ResponseEntity<?> postNewAmenity(
+            @RequestBody Amenity amenity) {
         try {
-            Boolean success = amenityService.addAmenity(amenity);
-
-            if (success) {
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            amenityService.addAmenity(amenity);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (DuplicateResourceException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**
-     * update name by id
-     * 
-     * @pathvariable id
-     * @requestbody amenity
-     * @return
-     */
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Amenity> updateAmenity(@PathVariable Long id, @RequestBody @Validated Amenity amenity) {
-        try {
-            Boolean success = amenityService.updateAmenity(id, amenity);
-            if (success) {
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PutMapping("/update/{id}")
+//    public ResponseEntity<?> updateAmenity(
+//            @PathVariable Long id,
+//            @RequestBody Amenity amenity) {
+//        try {
+//            amenityService.updateAmenity(id, amenity);
+//            return new ResponseEntity<>(HttpStatus.OK);
+//        } catch (ResourceNotFoundException e) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
-    /**
-     * delete
-     * 
-     * @pathvariable id
-     * @return
-     */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteAmenity(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAmenity(@PathVariable Long id) {
         try {
             Boolean deleted = amenityService.deleteAmenity(id);
             if (deleted) {
                 return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return ResponseEntity.notFound().build();
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

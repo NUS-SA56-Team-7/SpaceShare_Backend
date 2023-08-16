@@ -1,21 +1,30 @@
 package com.spaceshare.backend.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.enums.ApproveStatus;
 import com.spaceshare.backend.models.enums.PostType;
 import com.spaceshare.backend.models.enums.PropertyType;
-import com.spaceshare.backend.models.enums.RoomMateType;
 import com.spaceshare.backend.models.enums.RoomType;
+import com.spaceshare.backend.models.enums.TenantType;
+import com.spaceshare.backend.projections.PropertyDetailProjection;
+import com.spaceshare.backend.projections.PropertyProjection;
 
 public interface PropertyService {
 
-	Boolean createProperty(Property property);
+	Boolean createRenterProperty(UUID renterId, Property property);
 
-	Property getPropertyById(Long id);
+	Boolean updateRenterProperty(UUID renterId, Long propertyId, Property property);
 
-	List<Property> getAllProperties();
+	PropertyDetailProjection getPropertyById(Long id);
+
+	List<PropertyProjection> getAllProperties();
+
+	Long increaseViewCount(Long id);
+
+	List<PropertyProjection> getPropertiesByRenterId(UUID renterId);
 
 	Long countByPropertyTypeAndStatus(PostType postType, ApproveStatus approveStatus);
 
@@ -23,5 +32,5 @@ public interface PropertyService {
 
 	Double calculateRoomTypePercentages(PostType postType, RoomType roomType);
 
-	Double calculateRoomMateTypePercentages(PostType postType, RoomMateType roomMateType);
+	Double calculateTenantTypePercentages(PostType postType, TenantType tenantType);
 }

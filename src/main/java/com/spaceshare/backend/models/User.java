@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.spaceshare.backend.models.enums.Status;
 
 import lombok.Data;
@@ -22,6 +24,7 @@ public class User extends Account {
 	@NotNull
 	private String lastName;
 	
+	@JsonProperty(access = Access.WRITE_ONLY)
 	@NotNull
 	private String identificationNumber;
 
@@ -31,6 +34,8 @@ public class User extends Account {
 	private String address;
 
 	private LocalDate dateOfBirth;
+	
+	private String photoUrl;
 
 	@Column(columnDefinition = "TINYINT NOT NULL")
     private Status status = Status.ACTIVE;

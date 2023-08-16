@@ -7,6 +7,9 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import lombok.Data;
 
 @Data
@@ -16,6 +19,7 @@ public class Account {
 	@NotNull
 	private String email;
 	
+	@JsonProperty(access = Access.WRITE_ONLY)
 	@NotNull
 	private String password;
 	

@@ -20,29 +20,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Account;
+import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.Tenant;
+import com.spaceshare.backend.services.PropertyService;
 import com.spaceshare.backend.services.RenterService;
 import com.spaceshare.backend.services.TenantService;
 
 @RestController
 @RequestMapping("/api/renter")
 public class RenterController {
-
 	/*** Services ***/
 	@Autowired
 	RenterService svcRenter;
 
-	// @PostMapping("/register")
-	// public ResponseEntity<?> postRegisterRenter(@RequestBody Renter renter) {
-	// Boolean success = svcRenter.createRenter(renter);
-
-	// if (success) {
-	// return new ResponseEntity<>(renter, HttpStatus.OK);
-	// } else {
-	// return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
-	// }
-	// }
+	@Autowired
+	PropertyService svcProperty;
 
 	/*** API Methods ***/
 	@GetMapping("/all")
@@ -64,23 +57,55 @@ public class RenterController {
 		}
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Renter> getRenterById(@PathVariable("id") UUID id) {
-
+	/*** API Methods ***/
+	@PostMapping("/{id}/property/create")
+	public ResponseEntity<?> postCreateProperty(
+			@PathVariable("id") UUID renterId,
+			@RequestBody Property property) {
 		try {
-			Renter renter = svcRenter.findRenterById(id);
-
-			if (renter != null) {
-				return new ResponseEntity<Renter>(renter, HttpStatus.OK);
+			Boolean success = svcProperty.createRenterProperty(renterId, property);
+			if (success) {
+				return new ResponseEntity<>(HttpStatus.CREATED);
 			} else {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PutMapping("/{id}/property/update/{propertyId}")
+	public ResponseEntity<?> putUpdateProperty(
+			@PathVariable UUID id,
+			@PathVariable Long propertyId,
+			@RequestBody Property property) {
+		try {
+			Boolean success = svcProperty.updateRenterProperty(id, propertyId, property);
+			if (success) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (BadRequestException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{id}/properties")
+	public ResponseEntity<?> getRenterProperties(
+			@PathVariable UUID id) {
+		try {
+			return new ResponseEntity<>(svcProperty.getPropertiesByRenterId(id), HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -121,6 +146,16 @@ public class RenterController {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<Renter> getRenterById(@PathVariable UUID id) {
+		Renter renter = svcRenter.findRenterById(id);
+		if (renter != null) {
+			return new ResponseEntity<Renter>(renter, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 	}
 
 	@DeleteMapping("/delete/{id}")
