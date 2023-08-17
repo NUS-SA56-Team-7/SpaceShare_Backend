@@ -36,4 +36,14 @@ public class PropertyDocServiceImpl implements PropertyDocService {
 		
 		return propertyDocs;
 	}
+	
+	@Transactional
+	public Boolean deletePropertyDocs(Long propertyId) {
+		List<PropertyDoc> propertyDocs = repoPropertyDoc.findByPropertyId(propertyId);
+		for (PropertyDoc doc: propertyDocs) {
+			repoPropertyDoc.deleteById(doc.getId());
+		}
+		
+		return true;
+	}
 }

@@ -13,8 +13,6 @@ public interface RenterService {
 	
 	Renter getRenterByEmail(String email);
 
-	Renter findRenterById(UUID id);
-
 	Boolean createRenter(Renter renter);
 
 	Renter updateRenter(UUID id, Renter renter);

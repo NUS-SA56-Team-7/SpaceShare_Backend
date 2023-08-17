@@ -45,4 +45,14 @@ public class PropertyFacilityServiceImpl implements PropertyFacilityService {
 		
 		return propertyFacilities;
 	}
+	
+	@Transactional
+	public Boolean deletePropertyFacilities(Long propertyId) {
+		List<PropertyFacility> propertyFacilities = repoPropertyFacility.findByPropertyId(propertyId);
+		for (PropertyFacility facility: propertyFacilities) {
+			repoPropertyFacility.deleteById(facility.getId());
+		}
+		
+		return true;
+	}
 }

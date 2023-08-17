@@ -43,17 +43,22 @@ public class PropertyImageServiceImpl implements PropertyImageService {
 	
 	@Transactional
 	public Boolean updatePropertyImages(Property property, List<String> propertyImageURLs) {
-		try {
-			for (String imageURL: propertyImageURLs) {
-				PropertyImage propertyImage = new PropertyImage();
-				propertyImage.setImageUrl(imageURL);
-				propertyImage.setProperty(property);
-				repoPropertyImage.save(propertyImage);
-			}
-			return true;
+		for (String imageURL: propertyImageURLs) {
+			PropertyImage propertyImage = new PropertyImage();
+			propertyImage.setImageUrl(imageURL);
+			propertyImage.setProperty(property);
+			repoPropertyImage.save(propertyImage);
 		}
-		catch(Exception e) {
-			return false;
+		return true;
+	}
+	
+	@Transactional
+	public Boolean deletePropertyImages(Long propertyId) {
+		List<PropertyImage> propertyImages = repoPropertyImage.findByPropertyId(propertyId);
+		for (PropertyImage image: propertyImages) {
+			repoPropertyImage.deleteById(image.getId());
 		}
+		
+		return true;
 	}
 }

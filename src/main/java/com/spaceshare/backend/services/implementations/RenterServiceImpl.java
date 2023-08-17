@@ -30,10 +30,15 @@ public class RenterServiceImpl implements RenterService {
 	public List<Renter> getAllRenters() {
 		return repoRenter.findAll();
 	}
+	
+	public Renter getRenterById(UUID id) {
+		return repoRenter.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException());
+	}
 
-	@Override
-	public Renter findRenterById(UUID id) {
-		return repoRenter.findById(id).orElse(null);
+	public Renter getRenterByEmail(String email) {
+		return repoRenter.findByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException());
 	}
 
 	@Override
@@ -52,27 +57,20 @@ public class RenterServiceImpl implements RenterService {
 
 	@Override
 	public Renter updateRenter(UUID id, Renter inRenter) {
+		Renter r = repoRenter.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException());
+		
+		r.setEmail(inRenter.getEmail());
+		r.setFirstName(inRenter.getFirstName());
+		r.setLastName(inRenter.getLastName());
+		r.setIdentificationNumber(r.getIdentificationNumber());
+		r.setPhone(inRenter.getPhone());
+		r.setAddress(inRenter.getAddress());
+		r.setDateOfBirth(inRenter.getDateOfBirth());
+		r.setPhotoUrl(inRenter.getPhotoUrl());
+		r.setUpdatedAt(LocalDate.now());
 
-		Renter r = findRenterById(id);
-
-		if (r != null) {
-
-			r.setAddress(inRenter.getAddress());
-			r.setDateOfBirth(inRenter.getDateOfBirth());
-			r.setEmail(inRenter.getEmail());
-			r.setFirstName(inRenter.getFirstName());
-			r.setIdentificationNumber(inRenter.getIdentificationNumber());
-			r.setLastName(inRenter.getLastName());
-			r.setPassword(passwordEncoder.encode(inRenter.getPassword()));
-			r.setPhone(inRenter.getPhone());
-			// r.setProfileImageUrl(inRenter.getProfileImageUrl());
-			r.setUpdatedAt(LocalDate.now());
-
-			return repoRenter.saveAndFlush(r);
-		} else {
-			return null;
-		}
-
+		return repoRenter.saveAndFlush(r);
 	}
 
 	@Override
@@ -90,15 +88,5 @@ public class RenterServiceImpl implements RenterService {
 
 	public Boolean checkPassword(Renter renter, String password) {
 		return false;
-	}
-
-	public Renter getRenterById(UUID id) {
-		return repoRenter.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException());
-	}
-
-	public Renter getRenterByEmail(String email) {
-		return repoRenter.findByEmail(email)
-				.orElseThrow(() -> new ResourceNotFoundException());
 	}
 }

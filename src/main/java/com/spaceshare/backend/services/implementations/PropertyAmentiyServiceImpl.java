@@ -45,4 +45,14 @@ public class PropertyAmentiyServiceImpl implements PropertyAmenityService {
 		
 		return propertyAmenities;
 	}
+	
+	@Transactional
+	public Boolean deletePropertyAmenities(Long propertyId) {
+		List<PropertyAmenity> propertyAmenities = repoPropertyAmenity.findByPropertyId(propertyId);
+		for (PropertyAmenity amenity: propertyAmenities) {
+			repoPropertyAmenity.deleteById(amenity.getId());
+		}
+		
+		return true;
+	}
 }

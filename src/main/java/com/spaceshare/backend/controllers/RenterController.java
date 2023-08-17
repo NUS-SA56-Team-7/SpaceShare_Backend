@@ -69,11 +69,14 @@ public class RenterController {
 			} else {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
-		} catch (BadRequestException e) {
+		}
+		catch (BadRequestException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-		} catch (ResourceNotFoundException e) {
+		}
+		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -90,10 +93,35 @@ public class RenterController {
 			} else {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
-		} catch (ResourceNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@DeleteMapping("/{id}/property/delete/{propertyId}")
+	public ResponseEntity<?> deleteProperty(
+			@PathVariable UUID id,
+			@PathVariable Long propertyId) {
+		try {
+			Boolean success = svcProperty.deleteRenterProperty(id, propertyId);
+			if (success) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -127,40 +155,45 @@ public class RenterController {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 	}
-
-	@PutMapping("/update/{id}")
-	public ResponseEntity<Renter> updateRenter(@PathVariable("id") UUID id, @RequestBody Renter inRenter) {
-
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getRenterById(@PathVariable UUID id) {
 		try {
-			Renter renter = svcRenter.updateRenter(id, inRenter);
-
-			if (renter != null)
-				return new ResponseEntity<Renter>(renter, HttpStatus.OK);
-			else
-				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		} catch (ResourceNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (BadRequestException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+			Renter renter = svcRenter.getRenterById(id);
+			return new ResponseEntity<Renter>(renter, HttpStatus.OK);
 		}
-
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Renter> getRenterById(@PathVariable UUID id) {
-		Renter renter = svcRenter.findRenterById(id);
-		if (renter != null) {
+	@PutMapping("/update/{id}")
+	public ResponseEntity<?> updateRenter(
+			@PathVariable("id") UUID id,
+			@RequestBody Renter inRenter) {
+		try {
+			Renter renter = svcRenter.updateRenter(id, inRenter);
 			return new ResponseEntity<Renter>(renter, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<HttpStatus> deleteRenter(@PathVariable("id") UUID id) {
-
 		try {
 			Boolean success = svcRenter.deleteRenter(id);
 
@@ -168,11 +201,14 @@ public class RenterController {
 				return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
 			else
 				return new ResponseEntity<HttpStatus>(HttpStatus.EXPECTATION_FAILED);
-		} catch (ResourceNotFoundException e) {
+		}
+		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (BadRequestException e) {
+		}
+		catch (BadRequestException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 	}

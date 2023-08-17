@@ -35,18 +35,22 @@ public class Tenant extends User {
 
 	/*** Navigation Properties ***/
 	@OneToMany(targetEntity = Property.class, mappedBy = "tenant")
+	@ToString.Exclude
     @JsonIgnore
     private List<Property> properties;
 	
     @OneToMany(targetEntity = Favourite.class, mappedBy = "tenant")
+    @ToString.Exclude
     @JsonIgnore
     private List<Favourite> favourites;
     
     @OneToMany(targetEntity = Comment.class, mappedBy = "tenant")
+    @ToString.Exclude
     @JsonIgnore
     private List<Comment> comments;
 
     @OneToMany(targetEntity = Appointment.class, mappedBy = "tenant")
+    @ToString.Exclude
     @JsonIgnore
     private List<Appointment> appointments;
 }

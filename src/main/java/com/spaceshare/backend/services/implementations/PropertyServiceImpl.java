@@ -63,48 +63,62 @@ public class PropertyServiceImpl implements PropertyService {
 	public Boolean createRenterProperty(UUID renterId, Property property) {
 		Renter renter = repoRenter.findById(renterId)
 				.orElseThrow(() -> new BadRequestException());
-		try {
-			property.setCreatedAt(LocalDate.now());
-			property.setUpdatedAt(LocalDate.now());
-			property.setRenter(renter);
+		
+		property.setCreatedAt(LocalDate.now());
+		property.setUpdatedAt(LocalDate.now());
+		property.setRenter(renter);
 
-			Property savedProperty = repoProperty.save(property);
-			svcPropertyImage.createPropertyImages(savedProperty, property.getPropertyImageURLs());
-			svcPropertyDoc.createPropertyDocs(savedProperty, property.getPropertyDocURLs());
-			svcPropertyAmenity.createPropertyAmenities(savedProperty, property.getPropertyAmenityIDs());
-			svcPropertyFacility.createPropertyFacilities(savedProperty, property.getPropertyFacilityIDs());
+		Property savedProperty = repoProperty.save(property);
+		svcPropertyImage.createPropertyImages(savedProperty, property.getPropertyImageURLs());
+		svcPropertyDoc.createPropertyDocs(savedProperty, property.getPropertyDocURLs());
+		svcPropertyAmenity.createPropertyAmenities(savedProperty, property.getPropertyAmenityIDs());
+		svcPropertyFacility.createPropertyFacilities(savedProperty, property.getPropertyFacilityIDs());
 
-			return true;
-		} catch (ResourceNotFoundException e) {
-			throw new ResourceNotFoundException();
-		} catch (Exception e) {
-			throw new InternalServerErrorException(e.getMessage());
-		}
+		return true;
 	}
 
+	@Transactional
 	public Boolean updateRenterProperty(UUID renterId, Long propertyId, Property property) {
-		Renter renter = repoRenter.findById(renterId)
-				.orElseThrow(() -> new BadRequestException());
+		if (repoRenter.existsById(renterId)) {
+			throw new BadRequestException();
+		}
+		
 		Property existingProperty = repoProperty.findById(propertyId)
 				.orElseThrow(() -> new ResourceNotFoundException());
-		try {
-			existingProperty.setTitle(property.getTitle());
-			existingProperty.setDescription(property.getTitle());
-			existingProperty.setPropertyType(property.getPropertyType());
-			existingProperty.setRoomType(property.getRoomType());
-			existingProperty.setRentalFees(property.getRentalFees());
-			existingProperty.setAddress(property.getAddress());
-			existingProperty.setPostalCode(property.getPostalCode());
-			existingProperty.setFurnishment(property.getFurnishment());
-			// existingProperty.setTitle(property.getTitle());
-			// existingProperty.setTitle(property.getTitle());
 
-			Property savedProperty = repoProperty.save(existingProperty);
+		existingProperty.setTitle(property.getTitle());
+		existingProperty.setDescription(property.getTitle());
+		existingProperty.setPropertyType(property.getPropertyType());
+		existingProperty.setRoomType(property.getRoomType());
+		existingProperty.setRentalFees(property.getRentalFees());
+		existingProperty.setAddress(property.getAddress());
+		existingProperty.setPostalCode(property.getPostalCode());
+		existingProperty.setFurnishment(property.getFurnishment());
+		// existingProperty.setTitle(property.getTitle());
+		// existingProperty.setTitle(property.getTitle());
 
-			return true;
-		} catch (Exception e) {
-			throw new InternalServerErrorException(e.getMessage());
+		repoProperty.save(existingProperty);
+
+		return true;
+	}
+	
+	@Transactional
+	public Boolean deleteRenterProperty(UUID renterId, Long propertyId) {
+		if (!repoRenter.existsById(renterId)) {
+			throw new BadRequestException();
 		}
+		if (!repoProperty.existsById(propertyId)) {
+			throw new ResourceNotFoundException();
+		}
+		
+		svcPropertyImage.deletePropertyImages(propertyId);
+		svcPropertyDoc.deletePropertyDocs(propertyId);
+		svcPropertyAmenity.deletePropertyAmenities(propertyId);
+		svcPropertyFacility.deletePropertyFacilities(propertyId);
+		
+		repoProperty.deleteById(propertyId);
+		
+		return true;
 	}
 
 	public PropertyDetailProjection getPropertyById(Long id) {

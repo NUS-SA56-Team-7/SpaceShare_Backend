@@ -17,6 +17,8 @@ public interface PropertyService {
 	Boolean createRenterProperty(UUID renterId, Property property);
 
 	Boolean updateRenterProperty(UUID renterId, Long propertyId, Property property);
+	
+	Boolean deleteRenterProperty(UUID renterId, Long propertyId);
 
 	PropertyDetailProjection getPropertyById(Long id);
 

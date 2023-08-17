@@ -8,4 +8,6 @@ import com.spaceshare.backend.models.PropertyFacility;
 public interface PropertyFacilityService {
     
 	List<PropertyFacility> createPropertyFacilities(Property property, List<Long> facilityIDs);
+	
+	Boolean deletePropertyFacilities(Long propertyId);
 }

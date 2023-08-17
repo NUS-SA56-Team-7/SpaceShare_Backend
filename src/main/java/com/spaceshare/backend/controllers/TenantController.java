@@ -26,7 +26,9 @@ import com.spaceshare.backend.dtos.TenantDTO;
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
+import com.spaceshare.backend.models.RecentSearch;
 import com.spaceshare.backend.models.Tenant;
+import com.spaceshare.backend.projections.RecentSearchProjection;
 import com.spaceshare.backend.services.RecentSearchService;
 import com.spaceshare.backend.services.RenterService;
 import com.spaceshare.backend.services.TenantService;
@@ -102,6 +104,20 @@ public class TenantController {
 			}
 		} catch (BadRequestException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/{id}/recent/")
+	public ResponseEntity<?> getAllRecentSearchesByTenant (
+			@PathVariable UUID id) {
+		try {
+			List<RecentSearchProjection> recentSearches =
+					svcRecentSearch.getRecentSearchesByTenantId(id);
+			return new ResponseEntity<>(recentSearches, HttpStatus.OK);
 		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {

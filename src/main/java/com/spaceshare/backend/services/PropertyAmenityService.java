@@ -8,4 +8,6 @@ import com.spaceshare.backend.models.PropertyAmenity;
 public interface PropertyAmenityService {
     
 	List<PropertyAmenity> createPropertyAmenities(Property property, List<Long> amenitiyIDs);
+	
+	Boolean deletePropertyAmenities(Long propertyId);
 }

@@ -8,4 +8,6 @@ import com.spaceshare.backend.models.PropertyImage;
 public interface PropertyImageService {
  
 	List<PropertyImage> createPropertyImages(Property property, List<String> propertyImageURLs);
+	
+	Boolean deletePropertyImages(Long propertyId);
 }
