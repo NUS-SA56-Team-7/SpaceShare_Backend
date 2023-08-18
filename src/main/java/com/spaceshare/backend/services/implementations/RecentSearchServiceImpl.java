@@ -10,12 +10,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
-import com.spaceshare.backend.exceptions.InternalServerErrorException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.RecentSearch;
 import com.spaceshare.backend.models.Tenant;
-import com.spaceshare.backend.projections.RecentSearchProjection;
 import com.spaceshare.backend.repos.PropertyRepository;
 import com.spaceshare.backend.repos.RecentSearchRepository;
 import com.spaceshare.backend.repos.TenantRepository;
@@ -43,12 +41,7 @@ public class RecentSearchServiceImpl implements RecentSearchService {
 				.orElseThrow(() -> new ResourceNotFoundException("Property cannot be found"));
 		
 		try {
-			
-			System.out.println(repoRecentSearch.findFirstByOrderBySearchedAtAsc());
-			System.out.println(repoRecentSearch.findByTenantId(tenantId).size());
-			System.out.println(repoRecentSearch.findByTenantId(tenantId).size() >= 3);
-			
-			if (repoRecentSearch.findByTenantId(tenantId).size() >= 3) {
+			if (repoRecentSearch.findByTenantId(tenantId).size() >= 20) {
 				RecentSearch oldestSearch =
 						repoRecentSearch.findFirstByOrderBySearchedAtAsc().get();
 				repoRecentSearch.deleteById(oldestSearch.getId());
@@ -65,12 +58,9 @@ public class RecentSearchServiceImpl implements RecentSearchService {
 		catch (DataIntegrityViolationException e) {
 			throw new BadRequestException(e.getMessage());
 		}
-		catch (Exception e) {
-			throw new InternalServerErrorException(e.getMessage());
-		}
 	}
 	
-	public List<RecentSearchProjection> getRecentSearchesByTenantId(UUID tenantId) {
+	public List<RecentSearch> getRecentSearchesByTenantId(UUID tenantId) {
 		if (!repoTenant.existsById(tenantId)) {
 			throw new ResourceNotFoundException("Tenant does not exist");
 		}

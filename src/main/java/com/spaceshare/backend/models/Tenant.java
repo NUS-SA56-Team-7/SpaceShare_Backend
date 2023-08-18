@@ -53,4 +53,9 @@ public class Tenant extends User {
     @ToString.Exclude
     @JsonIgnore
     private List<Appointment> appointments;
+    
+    @OneToMany(targetEntity = RecentSearch.class, mappedBy = "tenant")
+    @ToString.Exclude
+    @JsonIgnore
+    private List<RecentSearch> recents;
 }

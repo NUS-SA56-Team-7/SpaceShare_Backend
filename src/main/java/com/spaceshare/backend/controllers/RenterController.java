@@ -108,6 +108,9 @@ public class RenterController {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
 		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
@@ -192,8 +195,8 @@ public class RenterController {
 			@PathVariable("id") UUID id,
 			@RequestBody Renter inRenter) {
 		try {
-			Renter renter = svcRenter.updateRenter(id, inRenter);
-			return new ResponseEntity<Renter>(renter, HttpStatus.OK);
+			Renter updatedRenter = svcRenter.updateRenter(id, inRenter);
+			return new ResponseEntity<Renter>(updatedRenter, HttpStatus.OK);
 		}
 		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

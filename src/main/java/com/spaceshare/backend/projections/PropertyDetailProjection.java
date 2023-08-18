@@ -1,10 +1,12 @@
 package com.spaceshare.backend.projections;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.spaceshare.backend.models.Amenity;
 import com.spaceshare.backend.models.PropertyAmenity;
 import com.spaceshare.backend.models.PropertyDoc;
+import com.spaceshare.backend.models.PropertyFacility;
 import com.spaceshare.backend.models.PropertyImage;
 import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.enums.Furnishment;
@@ -51,8 +53,18 @@ public interface PropertyDetailProjection {
     
     List<PropertyDoc> getPropertyDocs();
     
-    Renter getRenter();
+    List<PropertyAmenity> getPropertyAmenities();
     
+    List<PropertyFacility> getPropertyFacilities();
     
-//    List<Amenity> getAmenities();
+    RenterProjection getRenter();
+    interface RenterProjection {
+        UUID getId();
+        
+        String getFirstName();
+        
+        String getLastName();
+        
+        String getPhotoUrl();
+    }
 }

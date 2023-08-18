@@ -2,6 +2,7 @@ package com.spaceshare.backend.projections;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import com.spaceshare.backend.models.PropertyImage;
 import com.spaceshare.backend.models.Renter;
@@ -48,7 +49,16 @@ public interface PropertyProjection {
     
     List<PropertyImage> getPropertyImages();
     
-    Renter getRenter();
+    RenterProjection getRenter();
+    interface RenterProjection {
+    	UUID getId();
+    	
+    	String getFirstName();
+    	
+    	String getLastName();
+    	
+    	String getPhotoUrl();
+    }
     
     LocalDate getCreatedAt();
     

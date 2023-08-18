@@ -25,6 +25,7 @@ public class PropertyFacility {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
 
 	/*** Navigation Properties ***/
@@ -33,6 +34,5 @@ public class PropertyFacility {
     private Property property;
 
     @ManyToOne
-    @JsonIgnore
     private Facility facility;
 }

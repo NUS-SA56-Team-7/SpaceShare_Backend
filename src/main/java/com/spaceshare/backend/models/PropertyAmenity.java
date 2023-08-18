@@ -25,6 +25,7 @@ public class PropertyAmenity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
 
 	/*** Navigation Properties ***/
@@ -33,6 +34,5 @@ public class PropertyAmenity {
     private Property property;
 
     @ManyToOne
-    @JsonIgnore
     private Amenity amenity;
 }

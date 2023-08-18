@@ -1,7 +1,10 @@
 package com.spaceshare.backend.services;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.enums.ApproveStatus;
@@ -22,13 +25,15 @@ public interface PropertyService {
 
 	PropertyDetailProjection getPropertyById(Long id);
 
-	List<PropertyProjection> getAllProperties();
+	Page<PropertyProjection> getAllProperties(int pageNumber, int pageSize, String sortBy);
 
 	List<Property> getAllReportProperties();
 
 	Long increaseViewCount(Long id);
 
 	List<PropertyProjection> getPropertiesByRenterId(UUID renterId);
+	
+	Long getTotalCount();
 
 	Long countByPropertyTypeAndStatus(PostType postType, ApproveStatus approveStatus);
 

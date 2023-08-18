@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
@@ -41,6 +43,7 @@ import com.spaceshare.backend.models.enums.PostType;
 import com.spaceshare.backend.models.enums.PropertyType;
 import com.spaceshare.backend.models.enums.TenantType;
 import com.spaceshare.backend.models.enums.RoomType;
+import com.spaceshare.backend.projections.CommentProjection;
 import com.spaceshare.backend.projections.PropertyDetailProjection;
 import com.spaceshare.backend.projections.PropertyProjection;
 import com.spaceshare.backend.models.enums.Status;
@@ -72,11 +75,21 @@ public class PropertyController {
 	}
 
 	@GetMapping("")
-	public ResponseEntity<?> getAllProperties() {
+	public ResponseEntity<?> getAllProperties(
+			@RequestParam(defaultValue = "0") int pageNumber,
+			@RequestParam(defaultValue = "8") int pageSize,
+			@RequestParam(defaultValue = "title") String sortBy) {
+
 		try {
-			return new ResponseEntity<>(svcProperty.getAllProperties().subList(0, 10), HttpStatus.OK);
+			Page<PropertyProjection> propertyPage = svcProperty.getAllProperties(pageNumber, pageSize, sortBy);
+
+			Map<String, Object> resBody = new HashMap<>();
+			resBody.put("count", svcProperty.getTotalCount());
+			resBody.put("data", propertyPage);
+
+			return new ResponseEntity<>(resBody, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -84,7 +97,7 @@ public class PropertyController {
 	@GetMapping("/{id}/comments")
 	public ResponseEntity<?> getAllComments(@PathVariable Long id) {
 		try {
-			List<CommentDTO> comments = svcComment.getBaseComments(id);
+			List<CommentProjection> comments = svcComment.getBaseComments(id);
 			return new ResponseEntity<>(comments, HttpStatus.OK);
 		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -264,6 +277,7 @@ public class PropertyController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
 	@GetMapping("/export/{reportType}")
 	public void exportListOfPropertiesByRoomRentalPostType(HttpServletResponse response,
 			@PathVariable String reportType) throws IOException {
@@ -393,25 +407,20 @@ public class PropertyController {
 		csvWriter.close();
 	}
 
-
 	@PutMapping("/{id}/approve")
 	public ResponseEntity<?> approveProperty(@PathVariable Long id) {
 		try {
 			Boolean approved = svcProperty.approveProperty(id);
 			if (approved) {
 				return new ResponseEntity<>(HttpStatus.OK);
-			}
-			else {
+			} else {
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-		}
-		catch (ResourceNotFoundException e) {
+		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		catch (BadRequestException e) {
+		} catch (BadRequestException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -423,18 +432,14 @@ public class PropertyController {
 			Boolean declined = svcProperty.declineProperty(id);
 			if (declined) {
 				return new ResponseEntity<>(HttpStatus.OK);
-			}
-			else {
+			} else {
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-		}
-		catch (ResourceNotFoundException e) {
+		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		catch (BadRequestException e) {
+		} catch (BadRequestException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

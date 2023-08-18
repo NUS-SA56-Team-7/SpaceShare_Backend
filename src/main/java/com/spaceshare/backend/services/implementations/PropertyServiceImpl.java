@@ -7,6 +7,10 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
@@ -74,8 +78,8 @@ public class PropertyServiceImpl implements PropertyService {
 
 	@Transactional
 	public Boolean updateRenterProperty(UUID renterId, Long propertyId, Property property) {
-		if (repoRenter.existsById(renterId)) {
-			throw new BadRequestException();
+		if (!repoRenter.existsById(renterId)) {
+			throw new BadRequestException("Renter does not exist");
 		}
 		
 		Property existingProperty = repoProperty.findById(propertyId)
@@ -121,8 +125,9 @@ public class PropertyServiceImpl implements PropertyService {
 				.orElseThrow(() -> new ResourceNotFoundException());
 	}
 
-	public List<PropertyProjection> getAllProperties() {
-		return repoProperty.findAllBy();
+	public Page<PropertyProjection> getAllProperties(int pageNumber, int pageSize, String sortBy) {
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+		return repoProperty.findAllBy(pageable);
 	}
 
 	@Transactional
@@ -141,8 +146,11 @@ public class PropertyServiceImpl implements PropertyService {
 
 		return repoProperty.findPropertyByRenterId(renter.getId());
 	}
+	
+	public Long getTotalCount() {
+		return repoProperty.count();
+	}
 
-	@Override
 	public Long countByPropertyTypeAndStatus(PostType postType, ApproveStatus status) {
 		List<Property> properties = repoProperty.findAll();
 
@@ -151,7 +159,6 @@ public class PropertyServiceImpl implements PropertyService {
 				.count();
 	}
 
-	@Override
 	public Double calculatePropertyTypePercentages(PostType postType, PropertyType propertyType) {
 		Long totalProperties = repoProperty.findAll().stream()
 				.filter(p -> p.getPostType().equals(postType))
@@ -166,7 +173,6 @@ public class PropertyServiceImpl implements PropertyService {
 		return percentage;
 	}
 
-	@Override
 	public Double calculateRoomTypePercentages(PostType postType, RoomType roomType) {
 		Long totalProperties = repoProperty.findAll().stream()
 				.filter(p -> p.getPostType().equals(postType))
@@ -182,7 +188,6 @@ public class PropertyServiceImpl implements PropertyService {
 
 	}
 
-	@Override
 	public Double calculateTenantTypePercentages(PostType postType, TenantType tenantType) {
 		Long totalProperties = repoProperty.findAll().stream()
 				.filter(p -> p.getPostType().equals(postType))

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Favourite;
+import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.models.enums.Status;
 import com.spaceshare.backend.repos.TenantRepository;
@@ -50,29 +51,20 @@ public class TenantServiceImpl implements TenantService {
 
 	@Override
 	public Tenant updateTenant(UUID id, Tenant inTenant) {
+		Tenant t = repoTenant.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException());
+		
+		t.setEmail(inTenant.getEmail());
+		t.setFirstName(inTenant.getFirstName());
+		t.setLastName(inTenant.getLastName());
+		t.setIdentificationNumber(t.getIdentificationNumber());
+		t.setPhone(inTenant.getPhone());
+		t.setAddress(inTenant.getAddress());
+		t.setDateOfBirth(inTenant.getDateOfBirth());
+		t.setPhotoUrl(inTenant.getPhotoUrl());
+		t.setUpdatedAt(LocalDate.now());
 
-		try {
-			Tenant t = getTenantById(id);
-			if (t != null) {
-
-				t.setAddress(inTenant.getAddress());
-				t.setDateOfBirth(inTenant.getDateOfBirth());
-				t.setEmail(inTenant.getEmail());
-				t.setFirstName(inTenant.getFirstName());
-				t.setIdentificationNumber(inTenant.getIdentificationNumber());
-				t.setLastName(inTenant.getLastName());
-				t.setPassword(passwordEncoder.encode(inTenant.getPassword()));
-				t.setPhone(inTenant.getPhone());
-				// r.setProfileImageUrl(inTenant.getProfileImageUrl());
-				t.setUpdatedAt(LocalDate.now());
-
-				return repoTenant.saveAndFlush(t);
-			} else {
-				return null;
-			}
-		} catch (Exception e) {
-			return null;
-		}
+		return repoTenant.saveAndFlush(t);
 	}
 
 	@Override

@@ -32,8 +32,8 @@ import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.RecentSearch;
+import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.Tenant;
-import com.spaceshare.backend.projections.RecentSearchProjection;
 import com.spaceshare.backend.services.RecentSearchService;
 import com.spaceshare.backend.models.enums.Status;
 import com.spaceshare.backend.services.RenterService;
@@ -108,22 +108,29 @@ public class TenantController {
 			} else {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
-		} catch (BadRequestException e) {
+		}
+		catch (BadRequestException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-		} catch (ResourceNotFoundException e) {
+		}
+		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
-	@GetMapping("/{id}/recent/")
+	@GetMapping("/{id}/recents")
 	public ResponseEntity<?> getAllRecentSearchesByTenant (
 			@PathVariable UUID id) {
 		try {
-			List<RecentSearchProjection> recentSearches =
-					svcRecentSearch.getRecentSearchesByTenantId(id);
-			return new ResponseEntity<>(recentSearches, HttpStatus.OK);
+			List<Property> recentProperties = svcTenant.getTenantById(id).getRecents()
+					.stream()
+					.map((recent) -> {
+						return recent.getProperty();
+					}).toList();
+
+			return new ResponseEntity<>(recentProperties, HttpStatus.OK);
 		} catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
@@ -193,22 +200,23 @@ public class TenantController {
 		}
 
 	}
-
+	
 	@PutMapping("/update/{id}")
-	public ResponseEntity<Tenant> updateTenant(@PathVariable("id") UUID id, @RequestBody Tenant inTenant) {
-
+	public ResponseEntity<?> updateTenant(
+			@PathVariable("id") UUID id,
+			@RequestBody Tenant inTenant) {
 		try {
 			Tenant updatedTenant = svcTenant.updateTenant(id, inTenant);
-			if (updatedTenant != null)
-				return new ResponseEntity<Tenant>(updatedTenant, HttpStatus.OK);
-			else
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (ResourceNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (BadRequestException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+			return new ResponseEntity<>(updatedTenant, HttpStatus.OK);
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
