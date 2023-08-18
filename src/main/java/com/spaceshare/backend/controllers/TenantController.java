@@ -3,10 +3,12 @@ package com.spaceshare.backend.controllers;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,6 +23,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.supercsv.io.CsvBeanWriter;
+import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.prefs.CsvPreference;
 
 import com.spaceshare.backend.dtos.TenantDTO;
 import com.spaceshare.backend.exceptions.BadRequestException;
@@ -30,6 +35,7 @@ import com.spaceshare.backend.models.RecentSearch;
 import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.projections.RecentSearchProjection;
 import com.spaceshare.backend.services.RecentSearchService;
+import com.spaceshare.backend.models.enums.Status;
 import com.spaceshare.backend.services.RenterService;
 import com.spaceshare.backend.services.TenantService;
 
@@ -206,33 +212,49 @@ public class TenantController {
 		}
 	}
 
-	// issuing get request to this route produce csv file
-	// @GetMapping("/export/list")
-	// public void exportToCSV(HttpServletResponse response) throws IOException {
-	// response.setContentType("text/csv");
-	// DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-	// String currentDateTime = dateFormatter.format(new Date());
+	@GetMapping("/export/list")
+	public void exportToCSV(HttpServletResponse response) throws IOException {
+		response.setContentType("text/csv");
+		DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		String currentDateTime = dateFormatter.format(new Date());
 
-	// String headerKey = "Content-Disposition";
-	// String headerValue = "attachment; filename=tenants_" + currentDateTime +
-	// ".csv";
-	// response.setHeader(headerKey, headerValue);
+		String headerKey = "Content-Disposition";
+		String headerValue = "attachment; filename=tenants_" + currentDateTime + ".csv";
+		response.setHeader(headerKey, headerValue);
 
-	// List<Tenant> listTenants = svcTenant.findAllTenants();
+		List<Tenant> listTenants = svcTenant.getAllTenants();
+		Map<Status, List<Tenant>> statusToTenants = listTenants.stream().
+				sorted(Comparator.comparing(Tenant::getFirstName)).collect(Collectors.groupingBy(Tenant::getStatus));
 
-	// ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(),
-	// CsvPreference.STANDARD_PREFERENCE);
-	// String[] csvHeader = { "First Name", "Last Name", "Identification Number",
-	// "Address", "Phone", "Date Of Birth" };
-	// String[] nameMapping = { "firstName", "lastName", "identificationNumber",
-	// "address", "phone", "dateOfBirth" };
+		ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(),
+				CsvPreference.STANDARD_PREFERENCE);
+		String[] csvHeader = { "First Name", "Last Name", "Identification Number", "Date Of Birth",
+				"Address", "Email", "Phone",  "Status" };
+		String[] nameMapping = { "firstName", "lastName", "identificationNumber", "dateOfBirth",
+				"address", "email", "phone",  "status" };
 
-	// csvWriter.writeHeader(csvHeader);
+		// for (Tenant tenant : listTenants) {
+		// 	csvWriter.write(tenant, nameMapping);
+		// }
 
-	// for (Tenant tenant : listTenants) {
-	// csvWriter.write(tenant, nameMapping);
-	// }
+		statusToTenants.forEach((status, tenants) -> {
+			try {
+				csvWriter.writeComment(status.toString());
+				csvWriter.writeHeader(csvHeader);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			tenants.forEach(tenant -> 
+				{
+					try {
+						csvWriter.write(tenant, nameMapping);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			);
+		});
 
-	// csvWriter.close();
-	// }
+		csvWriter.close();
+	}
 }

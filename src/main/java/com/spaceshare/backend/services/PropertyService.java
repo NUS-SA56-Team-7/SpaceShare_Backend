@@ -24,6 +24,8 @@ public interface PropertyService {
 
 	List<PropertyProjection> getAllProperties();
 
+	List<Property> getAllReportProperties();
+
 	Long increaseViewCount(Long id);
 
 	List<PropertyProjection> getPropertiesByRenterId(UUID renterId);

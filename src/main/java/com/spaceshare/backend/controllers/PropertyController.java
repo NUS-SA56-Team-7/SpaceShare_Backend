@@ -1,9 +1,18 @@
 package com.spaceshare.backend.controllers;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,17 +25,24 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.supercsv.io.CsvBeanWriter;
+import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.prefs.CsvPreference;
 
 import com.spaceshare.backend.dtos.CommentDTO;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
+import com.spaceshare.backend.models.Amenity;
 import com.spaceshare.backend.models.Comment;
 import com.spaceshare.backend.models.Property;
+import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.enums.ApproveStatus;
 import com.spaceshare.backend.models.enums.PostType;
 import com.spaceshare.backend.models.enums.PropertyType;
 import com.spaceshare.backend.models.enums.TenantType;
 import com.spaceshare.backend.models.enums.RoomType;
 import com.spaceshare.backend.projections.PropertyDetailProjection;
+import com.spaceshare.backend.projections.PropertyProjection;
+import com.spaceshare.backend.models.enums.Status;
 import com.spaceshare.backend.services.CommentService;
 import com.spaceshare.backend.services.PropertyService;
 
@@ -247,4 +263,133 @@ public class PropertyController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	@GetMapping("/export/{reportType}")
+	public void exportListOfPropertiesByRoomRentalPostType(HttpServletResponse response,
+			@PathVariable String reportType) throws IOException {
+		response.setContentType("text/csv");
+		DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		String currentDateTime = dateFormatter.format(new Date());
+
+		String headerKey = "Content-Disposition";
+		String headerValue = "attachment; filename=report_" + currentDateTime + ".csv";
+		response.setHeader(headerKey, headerValue);
+		ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
+
+		List<Property> list = new ArrayList<>();
+		if (reportType.equals("properties-by-room-rental")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-roommate")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-male-roommate")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING
+							&& p.getTenantType() == TenantType.MALE)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-female-roommate")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING
+							&& p.getTenantType() == TenantType.FEMALE)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-male-only-room-rental")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getTenantType() == TenantType.MALE)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-female-only-room-rental")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getTenantType() == TenantType.FEMALE)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-couple-only-room-rental")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getTenantType() == TenantType.COUPLE)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-room-rental-for-hdb")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getPropertyType() == PropertyType.HDB)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-room-rental-for-condominium")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getPropertyType() == PropertyType.CONDOMINIUM)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-room-rental-for-landed")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getPropertyType() == PropertyType.LANDED)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-roommate-finding-for-hdb")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING
+							&& p.getPropertyType() == PropertyType.HDB)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-roommate-finding-for-condominium")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING
+							&& p.getPropertyType() == PropertyType.CONDOMINIUM)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-roommate-finding-for-landed")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING
+							&& p.getPropertyType() == PropertyType.LANDED)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-room-rental-for-singles")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getRoomType() == RoomType.SINGLE)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-room-rental-for-common")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getRoomType() == RoomType.COMMON)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-room-rental-for-master")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getRoomType() == RoomType.MASTER)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-room-rental-for-whole")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOM_RENTAL
+							&& p.getRoomType() == RoomType.WHOLE_UNIT)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-roommate-finding-for-singles")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING
+							&& p.getRoomType() == RoomType.SINGLE)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-roommate-finding-for-common")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING
+							&& p.getRoomType() == RoomType.COMMON)
+					.collect(Collectors.toList());
+		} else if (reportType.equals("properties-by-roommate-finding-for-master")) {
+			list = svcProperty.getAllReportProperties().stream()
+					.filter(p -> p.getPostType() == PostType.ROOMMATE_FINDING
+							&& p.getRoomType() == RoomType.MASTER)
+					.collect(Collectors.toList());
+		}
+
+		String[] csvHeader = { "Id", "Title", "Description", "Rental Fees", "Address", "Postal Code",
+				"Room Area", "Num of Bedrooms", "Num of Bathrooms", "Num of Tenants",
+				"Property Type", "Room Type", "Post Type", "Approve Status", "Status" };
+		String[] nameMapping = { "id", "title", "description", "rentalFees", "address", "postalCode",
+				"roomArea", "numBedrooms", "numBathrooms", "numTenants",
+				"propertyType", "roomType", "postType", "approveStatus", "status" };
+
+		csvWriter.writeHeader(csvHeader);
+
+		for (Property property : list) {
+			csvWriter.write(property, nameMapping);
+		}
+
+		csvWriter.close();
+	}
+
 }

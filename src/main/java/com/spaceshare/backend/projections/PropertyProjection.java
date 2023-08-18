@@ -10,6 +10,7 @@ import com.spaceshare.backend.models.enums.PostType;
 import com.spaceshare.backend.models.enums.PropertyType;
 import com.spaceshare.backend.models.enums.RoomType;
 import com.spaceshare.backend.models.enums.Status;
+import com.spaceshare.backend.models.enums.TenantType;
 
 public interface PropertyProjection {
     
@@ -52,4 +53,6 @@ public interface PropertyProjection {
     LocalDate getCreatedAt();
     
     LocalDate getUpdatedAt();
+
+    TenantType getTenantType();
 }

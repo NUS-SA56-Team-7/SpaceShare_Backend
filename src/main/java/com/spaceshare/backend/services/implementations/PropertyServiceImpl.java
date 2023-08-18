@@ -201,4 +201,9 @@ public class PropertyServiceImpl implements PropertyService {
 
 		return percentage;
 	}
+
+	@Override
+	public List<Property> getAllReportProperties() {
+		return repoProperty.findAll();
+	}
 }

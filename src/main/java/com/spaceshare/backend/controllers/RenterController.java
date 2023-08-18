@@ -1,7 +1,21 @@
 package com.spaceshare.backend.controllers;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,16 +30,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.supercsv.io.CsvBeanWriter;
+import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.prefs.CsvPreference;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
-import com.spaceshare.backend.models.Account;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.Renter;
-import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.services.PropertyService;
+import com.spaceshare.backend.models.enums.Status;
 import com.spaceshare.backend.services.RenterService;
-import com.spaceshare.backend.services.TenantService;
 
 @RestController
 @RequestMapping("/api/renter")
@@ -211,5 +226,45 @@ public class RenterController {
 		catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
+	}
+
+	@GetMapping("/export/list")
+	public void exportToCSV(HttpServletResponse response) throws IOException {
+		response.setContentType("text/csv");
+		DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		String currentDateTime = dateFormatter.format(new Date());
+
+		String headerKey = "Content-Disposition";
+		String headerValue = "attachment; filename=renters_" + currentDateTime + ".csv";
+		response.setHeader(headerKey, headerValue);
+
+		List<Renter> listRenters = svcRenter.getAllRenters();
+		Map<Status, List<Renter>> statusToRenters = listRenters.stream()
+				.sorted(Comparator.comparing(Renter::getFirstName)).collect(Collectors.groupingBy(Renter::getStatus));
+
+		ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(),
+				CsvPreference.STANDARD_PREFERENCE);
+		String[] csvHeader = { "First Name", "Last Name", "Identification Number", "Date Of Birth",
+				"Address", "Email", "Phone", "Status" };
+		String[] nameMapping = { "firstName", "lastName", "identificationNumber", "dateOfBirth",
+				"address", "email", "phone", "status" };
+
+		statusToRenters.forEach((status, renters) -> {
+			try {
+				csvWriter.writeComment(status.toString());
+				csvWriter.writeHeader(csvHeader);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			renters.forEach(renter -> {
+				try {
+					csvWriter.write(renter, nameMapping);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		});
+
+		csvWriter.close();
 	}
 }
