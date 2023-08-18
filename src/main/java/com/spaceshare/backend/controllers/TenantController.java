@@ -69,7 +69,7 @@ public class TenantController {
 		}
 	}
 
-	@GetMapping("/all")
+	@GetMapping("")
 	public ResponseEntity<List<Tenant>> getAllTenants() {
 		List<Tenant> tenants = svcTenant.getAllTenants();
 		if (tenants.isEmpty()) {

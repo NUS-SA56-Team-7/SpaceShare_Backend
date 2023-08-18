@@ -30,6 +30,7 @@ import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 
 import com.spaceshare.backend.dtos.CommentDTO;
+import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Amenity;
 import com.spaceshare.backend.models.Comment;
@@ -392,4 +393,50 @@ public class PropertyController {
 		csvWriter.close();
 	}
 
+
+	@PutMapping("/{id}/approve")
+	public ResponseEntity<?> approveProperty(@PathVariable Long id) {
+		try {
+			Boolean approved = svcProperty.approveProperty(id);
+			if (approved) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+			else {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PutMapping("/{id}/decline")
+	public ResponseEntity<?> declineProperty(@PathVariable Long id) {
+		try {
+			Boolean declined = svcProperty.declineProperty(id);
+			if (declined) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+			else {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

@@ -71,7 +71,7 @@ public class AdminController {
      * 
      * @return
      */
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<?> getAllAdmins() {
         try {
             List<Admin> admins = adminService.getAllAdmins();

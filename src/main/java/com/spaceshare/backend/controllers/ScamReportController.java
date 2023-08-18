@@ -26,7 +26,7 @@ public class ScamReportController {
     ScamReportService scamReportService;
 
 	/*** API Methods ***/
-    @GetMapping("/all")
+    @GetMapping("")
 	public ResponseEntity<List<ScamReport>> getAllScamReports() {
 
 		try {
@@ -126,25 +126,25 @@ public class ScamReportController {
 
 	}
 
-    // @DeleteMapping("/delete/{id}")
-	// public ResponseEntity<ScamReport> deleteScamReport(@PathVariable("id") Long id) {
+    @DeleteMapping("/delete/{id}")
+	public ResponseEntity<ScamReport> deleteScamReport(@PathVariable("id") Long id) {
 
-	// 	try {
+		try {
 
-    //         Boolean success = scamReportService.deleteScamReport(id);
+            Boolean success = scamReportService.deleteScamReport(id);
 
-	// 		if (success)
-	// 			return new ResponseEntity<>(HttpStatus.OK);
-	// 		else
-	// 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			if (success)
+				return new ResponseEntity<>(HttpStatus.OK);
+			else
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
-	// 	} catch (ResourceNotFoundException e) {
-	// 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	// 	} catch (BadRequestException e) {
-	// 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-	// 	} catch (Exception e) {
-	// 		return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-	// 	}
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+		}
 
-	// }
+	}
 }

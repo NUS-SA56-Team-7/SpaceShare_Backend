@@ -37,4 +37,8 @@ public interface PropertyService {
 	Double calculateRoomTypePercentages(PostType postType, RoomType roomType);
 
 	Double calculateTenantTypePercentages(PostType postType, TenantType tenantType);
+
+	Boolean approveProperty(Long id);
+
+	Boolean declineProperty(Long id);
 }

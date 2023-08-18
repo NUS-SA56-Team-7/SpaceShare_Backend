@@ -1,7 +1,6 @@
 package com.spaceshare.backend.services.implementations;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
-import com.spaceshare.backend.exceptions.InternalServerErrorException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.enums.ApproveStatus;
@@ -30,9 +28,6 @@ import com.spaceshare.backend.services.PropertyDocService;
 import com.spaceshare.backend.services.PropertyFacilityService;
 import com.spaceshare.backend.services.PropertyImageService;
 import com.spaceshare.backend.services.PropertyService;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class PropertyServiceImpl implements PropertyService {
@@ -205,5 +200,32 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public List<Property> getAllReportProperties() {
 		return repoProperty.findAll();
+	}
+
+	public Boolean approveProperty(Long id) {
+		Property property = repoProperty.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException());
+		try {
+			property.setApproveStatus(ApproveStatus.APPROVED);
+			property.setUpdatedAt(LocalDate.now());
+			repoProperty.saveAndFlush(property);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	@Override
+	public Boolean declineProperty(Long id) {
+		Property property = repoProperty.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException());
+		try {
+			property.setApproveStatus(ApproveStatus.DECLINED);
+			property.setUpdatedAt(LocalDate.now());
+			repoProperty.saveAndFlush(property);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }

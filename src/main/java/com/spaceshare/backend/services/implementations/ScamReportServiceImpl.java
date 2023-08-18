@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.ScamReport;
 import com.spaceshare.backend.models.enums.ApproveStatus;
@@ -50,19 +51,13 @@ public class ScamReportServiceImpl implements ScamReportService {
 
     @Override
     public Boolean approveScamReport(Long id) {
+        ScamReport scamReport = scamReportRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException());
         try {
-            ScamReport scamReport = scamReportRepository.findById(id).orElse(null);
-
-            if(scamReport != null) {
-                scamReport.setStatus(ApproveStatus.APPROVED);
-                scamReport.setUpdatedAt(LocalDate.now());
-                scamReportRepository.saveAndFlush(scamReport);
-                return true;
-            }
-            else {
-                return false;
-            }
-
+            scamReport.setStatus(ApproveStatus.APPROVED);
+            scamReport.setUpdatedAt(LocalDate.now());
+            scamReportRepository.saveAndFlush(scamReport);
+            return true;
         } catch (Exception e) {
             return false;
         }
@@ -70,18 +65,13 @@ public class ScamReportServiceImpl implements ScamReportService {
 
     @Override
     public Boolean declineScamReport(Long id) {
+        ScamReport scamReport = scamReportRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException());
         try {
-            ScamReport scamReport = scamReportRepository.findById(id).orElse(null);
-
-            if(scamReport != null) {
-                scamReport.setStatus(ApproveStatus.DECLINED);
-                scamReport.setUpdatedAt(LocalDate.now());
-                scamReportRepository.saveAndFlush(scamReport);
-                return true;
-            }
-            else {
-                return false;
-            }
+            scamReport.setStatus(ApproveStatus.DECLINED);
+            scamReport.setUpdatedAt(LocalDate.now());
+            scamReportRepository.saveAndFlush(scamReport);
+            return true;
 
         } catch (Exception e) {
             return false;
@@ -90,17 +80,12 @@ public class ScamReportServiceImpl implements ScamReportService {
 
     @Override
     public Boolean deleteScamReport(Long id) {
+        if (!scamReportRepository.existsById(id)) {
+            throw new ResourceNotFoundException();
+        }
         try {
-            ScamReport scamReport = scamReportRepository.findById(id).orElse(null);
-
-            if(scamReport != null) {
-                scamReportRepository.delete(scamReport);
-                return true;
-            }
-            else {
-                return false;
-            }
-
+            scamReportRepository.deleteById(id);
+            return true;
         } catch (Exception e) {
             return false;
         }

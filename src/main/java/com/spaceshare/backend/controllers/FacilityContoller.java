@@ -43,7 +43,7 @@ public class FacilityContoller {
     FacilityService facilityService;
 
     /*** API Methods ***/
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<?> getAllFacilities() {
         try {
             List<Facility> facilities = facilityService.getAllFacilities();

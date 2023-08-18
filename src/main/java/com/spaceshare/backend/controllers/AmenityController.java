@@ -39,7 +39,7 @@ public class AmenityController {
     AmenityService amenityService;
 
     /*** API Methods ***/
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<?> getAllAmenities() {
         try {
             List<Amenity> amenities = amenityService.getAllAmenities();
