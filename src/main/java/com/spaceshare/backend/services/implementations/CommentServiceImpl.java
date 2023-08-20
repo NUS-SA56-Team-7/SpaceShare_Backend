@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
@@ -37,14 +38,12 @@ public class CommentServiceImpl implements CommentService {
 	/*** Methods ***/
 	public Boolean createComment(UUID tenantId, Long propertyId, String comment) {
 		Tenant tenant = repoTenant.findById(tenantId)
-				.orElseThrow(() -> new ResourceNotFoundException());
+				.orElseThrow(() -> new ResourceNotFoundException("Tenant does not exist"));
 		Property property = repoProperty.findById(propertyId)
-				.orElseThrow(() -> new ResourceNotFoundException());
+				.orElseThrow(() -> new ResourceNotFoundException("Property does not exist"));
 		
 		try {			
 			Comment baseComment = new Comment();
-//			baseComment.setCreatedAt(LocalDate.now());
-//			baseComment.setUpdatedAt(LocalDate.now());
 			
 			baseComment.setTenant(tenant);
 			baseComment.setProperty(property);
@@ -94,38 +93,12 @@ public class CommentServiceImpl implements CommentService {
 		if (repoProperty.findById(propertyId).isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		List<CommentProjection> baseComments = repoComment.findByBaseCommentIsNullAndPropertyId(propertyId);
+		List<CommentProjection> baseComments =
+				repoComment.findByBaseCommentIsNullAndPropertyId(
+						propertyId,
+						Sort.by(Sort.Direction.DESC, "commentedAt"));
 		
 		return baseComments;
-		
-//		return baseComments.stream()
-//				.map(comment -> {
-//					CommentDTO dtoComment = new CommentDTO();
-//					dtoComment.setId(comment.getId());
-//					dtoComment.setComment(comment.getComment());
-//					
-//					List<Comment> replies = comment.getReplies();
-//					List<CommentDTO> newReplies =
-//							replies.stream()
-//							.map(reply -> {
-//								CommentDTO dtoReply = new CommentDTO();
-//								dtoReply.setId(reply.getId());
-//								dtoReply.setComment(reply.getComment());
-//								
-//								return dtoReply;
-//							}).toList();
-//					dtoComment.setReplies(newReplies);
-//					
-//					Tenant tenant = comment.getTenant();
-//					if (tenant != null) {
-//						dtoComment.setUserId(tenant.getId());
-//						dtoComment.setUserFirstName(comment.getTenant().getFirstName());
-//						dtoComment.setUserLastName(comment.getTenant().getLastName());
-//						dtoComment.setUserPhotoUrl(comment.getTenant().getPhotoUrl());
-//					}
-//					
-//					return dtoComment;
-//				}).toList();
 	}
 	
 	@Transactional

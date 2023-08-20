@@ -28,11 +28,26 @@ public class PropertyAmentiyServiceImpl implements PropertyAmenityService {
 	
 	/*** Methods ***/
 	@Transactional
-	public List<PropertyAmenity> createPropertyAmenities(Property property, List<Long> amenitiyIDs) {
-		
+	public List<PropertyAmenity> createPropertyAmenities(Property property, List<Long> amenityIDs) {
 		List<PropertyAmenity> propertyAmenities = new ArrayList<PropertyAmenity>();
+		for (Long id: amenityIDs) {
+			Amenity amenity = repoAmenity.findById(id)
+					.orElseThrow(() -> new ResourceNotFoundException());
+			
+			PropertyAmenity propertyAmenity = new PropertyAmenity();
+			propertyAmenity.setProperty(property);
+			propertyAmenity.setAmenity(amenity);
+			
+			propertyAmenities.add(repoPropertyAmenity.save(propertyAmenity));
+		}
 		
-		for (Long id: amenitiyIDs) {
+		return propertyAmenities;
+	}
+	
+	@Transactional
+	public List<PropertyAmenity> updatePropertyAmenities(Property property, List<Long> amenityIDs) {
+		List<PropertyAmenity> propertyAmenities = new ArrayList<PropertyAmenity>();
+		for (Long id: amenityIDs) {
 			Amenity amenity = repoAmenity.findById(id)
 					.orElseThrow(() -> new ResourceNotFoundException());
 			

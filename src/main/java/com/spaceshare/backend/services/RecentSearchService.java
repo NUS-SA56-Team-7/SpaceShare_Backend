@@ -10,4 +10,6 @@ public interface RecentSearchService {
 	Boolean createRecentSearch(UUID tenantId, Long propertyId);
 	
 	List<RecentSearch> getRecentSearchesByTenantId(UUID tenantId);
+	
+	Boolean deletePropertyRecentSearches(Long propertyId);
 }

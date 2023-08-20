@@ -9,5 +9,7 @@ public interface PropertyAmenityService {
     
 	List<PropertyAmenity> createPropertyAmenities(Property property, List<Long> amenitiyIDs);
 	
+	List<PropertyAmenity> updatePropertyAmenities(Property property, List<Long> amenitiyIDs);
+	
 	Boolean deletePropertyAmenities(Long propertyId);
 }

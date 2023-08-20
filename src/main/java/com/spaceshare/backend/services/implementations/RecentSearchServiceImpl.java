@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
+import com.spaceshare.backend.models.PropertyFacility;
 import com.spaceshare.backend.models.RecentSearch;
 import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.repos.PropertyRepository;
@@ -66,5 +67,15 @@ public class RecentSearchServiceImpl implements RecentSearchService {
 		}
 		
 		return repoRecentSearch.findByTenantId(tenantId);
+	}
+	
+	@Transactional
+	public Boolean deletePropertyRecentSearches(Long propertyId) {
+		List<RecentSearch> recentSearches = repoRecentSearch.findByPropertyId(propertyId);
+		for (RecentSearch recent: recentSearches) {
+			repoRecentSearch.deleteById(recent.getId());
+		}
+		
+		return true;
 	}
 }

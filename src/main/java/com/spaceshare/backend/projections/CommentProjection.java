@@ -1,5 +1,6 @@
 package com.spaceshare.backend.projections;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.spaceshare.backend.models.Comment;
@@ -21,5 +22,7 @@ public interface CommentProjection {
     }
     
     Comment getReplies();
+    
+    LocalDateTime getCommentedAt();
 }
 

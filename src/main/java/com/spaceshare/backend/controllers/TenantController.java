@@ -3,6 +3,7 @@ package com.spaceshare.backend.controllers;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -13,8 +14,12 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +28,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spaceshare.backend.dtos.TenantDTO;
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
@@ -34,6 +42,7 @@ import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.RecentSearch;
 import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.Tenant;
+import com.spaceshare.backend.services.PropertyService;
 import com.spaceshare.backend.services.RecentSearchService;
 import com.spaceshare.backend.models.enums.Status;
 import com.spaceshare.backend.services.RenterService;
@@ -46,11 +55,142 @@ public class TenantController {
 	/*** Services ***/
 	@Autowired
 	TenantService svcTenant;
+	
+	@Autowired
+	PropertyService svcProperty;
 
 	@Autowired
 	RecentSearchService svcRecentSearch;
 
 	/*** API Methods ***/
+	@PostMapping("/{id}/property/create")
+	public ResponseEntity<?> postCreateProperty(
+			@PathVariable("id") UUID tenantId,
+			@RequestBody Property property) {
+		try {
+			Boolean success = svcProperty.createTenantProperty(tenantId, property);
+			if (success) {
+				return new ResponseEntity<>(HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PutMapping("/{id}/property/update/{propertyId}")
+	public ResponseEntity<?> putUpdateProperty(
+			@PathVariable UUID id,
+			@PathVariable Long propertyId,
+			@RequestBody Property property) {
+		try {
+			Boolean success = svcProperty.updateTenantProperty(id, propertyId, property);
+			if (success) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@DeleteMapping("/{id}/property/delete/{propertyId}")
+	public ResponseEntity<?> deleteProperty(
+			@PathVariable UUID id,
+			@PathVariable Long propertyId) {
+		try {
+			Boolean success = svcProperty.deleteTenantProperty(id, propertyId);
+			if (success) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (BadRequestException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/{id}/properties")
+	public ResponseEntity<?> getTenantProperties(
+			@PathVariable UUID id) {
+		try {
+			return new ResponseEntity<>(svcProperty.getPropertiesByTenantId(id), HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/{id}/recommended")
+	public ResponseEntity<?> getTenantRecommendedProperties(
+			@PathVariable("id") UUID userId) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+	        
+	        LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+	        map.add("id", userId.toString());
+	        
+	        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(map, headers);
+	        
+			RestTemplate template = new RestTemplate();
+			String apiML = "http://localhost:8080/api/analytics/classify";
+			ResponseEntity<String> responseEntity =
+					template.postForEntity(apiML, requestEntity, String.class);
+			
+			String responseBody = responseEntity.getBody();
+			
+			List<Object> properties = new ArrayList<>();
+			
+			ObjectMapper objectMapper = new ObjectMapper();
+	        try {
+	            JsonNode jsonNode = objectMapper.readTree(responseBody);
+	            
+	            List<Long> values = new ArrayList<>();
+
+	            for (JsonNode node : jsonNode) {
+	                values.add(Long.parseLong(node.asText()));
+	            }
+
+	            for (Long value: values) {
+	            	properties.add(svcProperty.getPropertyById(value));
+	            }
+	        } catch (Exception e) {
+	            // Handle the parsing exception
+	        }
+	      
+			return new ResponseEntity<>(properties, HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	@GetMapping("/{id}/favourites")
 	public ResponseEntity<?> getAllFavourites(
 			@PathVariable UUID id) {
@@ -138,17 +278,6 @@ public class TenantController {
 		}
 	}
 
-	// @PostMapping("/register")
-	// public ResponseEntity<?> postRegisterRenter(@RequestBody Renter renter) {
-	// Boolean success = svcRenter.createRenter(renter);
-
-	// if (success) {
-	// return new ResponseEntity<>(renter, HttpStatus.OK);
-	// }
-	// else {
-	// return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
-	// }
-	// }
 	@PostMapping("/register")
 	public ResponseEntity<Tenant> createTenant(@RequestBody Tenant tenant) {
 		try {
@@ -167,7 +296,6 @@ public class TenantController {
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
-
 	}
 
 	@GetMapping("/{id}")
@@ -240,10 +368,6 @@ public class TenantController {
 				"Address", "Email", "Phone",  "Status" };
 		String[] nameMapping = { "firstName", "lastName", "identificationNumber", "dateOfBirth",
 				"address", "email", "phone",  "status" };
-
-		// for (Tenant tenant : listTenants) {
-		// 	csvWriter.write(tenant, nameMapping);
-		// }
 
 		statusToTenants.forEach((status, tenants) -> {
 			try {

@@ -47,6 +47,25 @@ public class PropertyFacilityServiceImpl implements PropertyFacilityService {
 	}
 	
 	@Transactional
+	public List<PropertyFacility> updatePropertyFacilities(Property property, List<Long> facilityIDs) {
+		
+		List<PropertyFacility> propertyFacilities = new ArrayList<PropertyFacility>();
+		
+		for (Long id: facilityIDs) {
+			Facility facility = repoFacility.findById(id)
+					.orElseThrow(() -> new ResourceNotFoundException());
+			
+			PropertyFacility propertyFacility = new PropertyFacility();
+			propertyFacility.setProperty(property);
+			propertyFacility.setFacility(facility);
+			
+			propertyFacilities.add(repoPropertyFacility.save(propertyFacility));
+		}
+		
+		return propertyFacilities;
+	}
+	
+	@Transactional
 	public Boolean deletePropertyFacilities(Long propertyId) {
 		List<PropertyFacility> propertyFacilities = repoPropertyFacility.findByPropertyId(propertyId);
 		for (PropertyFacility facility: propertyFacilities) {

@@ -38,6 +38,22 @@ public class PropertyDocServiceImpl implements PropertyDocService {
 	}
 	
 	@Transactional
+	public List<PropertyDoc> updatePropertyDocs(Property property, List<String> propertyDocURLs) {
+		
+		List<PropertyDoc> propertyDocs = new ArrayList<PropertyDoc>();
+		
+		for (String docURL: propertyDocURLs) {
+			PropertyDoc propertyDoc = new PropertyDoc();
+			propertyDoc.setDocUrl(docURL);
+			propertyDoc.setProperty(property);
+			
+			propertyDocs.add(repoPropertyDoc.save(propertyDoc));
+		}
+		
+		return propertyDocs;
+	}
+	
+	@Transactional
 	public Boolean deletePropertyDocs(Long propertyId) {
 		List<PropertyDoc> propertyDocs = repoPropertyDoc.findByPropertyId(propertyId);
 		for (PropertyDoc doc: propertyDocs) {

@@ -1,5 +1,6 @@
 package com.spaceshare.backend.models;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -77,6 +78,9 @@ public class Property extends Common {
     private Integer numTenants;
 
     private String nearbyDesc;
+    
+    @NotNull
+    private LocalDate availableOn;
 
     @Column(columnDefinition = "TINYINT NOT NULL")
     private PostType postType;

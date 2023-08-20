@@ -9,5 +9,7 @@ public interface PropertyDocService {
     
 	List<PropertyDoc> createPropertyDocs(Property property, List<String> propertyDocURLs);
 	
+	List<PropertyDoc> updatePropertyDocs(Property property, List<String> propertyDocURLs);
+	
 	Boolean deletePropertyDocs(Long propertyId);
 }
