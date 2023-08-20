@@ -29,7 +29,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 	Optional<PropertyDetailProjection> findPropertyById(@Param("id") Long id);
 	
 	List<PropertyProjection> findPropertyByRenterId(UUID renterId);
-	
+
 //	List<PropertyProjection> findByNameContainingAndCategoryContaining(
 //			String nameKeyword, String categoryKeyword);
 }

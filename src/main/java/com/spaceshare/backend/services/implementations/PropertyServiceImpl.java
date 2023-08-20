@@ -21,6 +21,7 @@ import com.spaceshare.backend.models.enums.PostType;
 
 import com.spaceshare.backend.models.enums.PropertyType;
 import com.spaceshare.backend.models.enums.RoomType;
+import com.spaceshare.backend.models.enums.Status;
 import com.spaceshare.backend.models.enums.TenantType;
 import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.projections.PropertyDetailProjection;
@@ -202,7 +203,6 @@ public class PropertyServiceImpl implements PropertyService {
 		return percentage;
 	}
 
-	@Override
 	public List<Property> getAllReportProperties() {
 		return repoProperty.findAll();
 	}
@@ -220,12 +220,12 @@ public class PropertyServiceImpl implements PropertyService {
 		}
 	}
 
-	@Override
 	public Boolean declineProperty(Long id) {
 		Property property = repoProperty.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException());
 		try {
 			property.setApproveStatus(ApproveStatus.DECLINED);
+			property.setStatus(Status.INACTIVE);
 			property.setUpdatedAt(LocalDate.now());
 			repoProperty.saveAndFlush(property);
 			return true;

@@ -12,7 +12,7 @@ public interface FacilityService {
 
     Facility addFacility(Facility facility);
 
-    // Facility updateFacility(Long id, Facility facility);
+    Facility updateFacility(Long id, Facility facility);
 
     Boolean deleteFacility(Long id);
 

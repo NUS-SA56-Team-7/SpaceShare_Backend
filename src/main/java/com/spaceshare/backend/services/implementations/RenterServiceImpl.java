@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.spaceshare.backend.exceptions.DuplicateResourceException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.enums.Status;
@@ -26,7 +27,6 @@ public class RenterServiceImpl implements RenterService {
 	PasswordEncoder passwordEncoder;
 
 	/*** Methods ***/
-	@Override
 	public List<Renter> getAllRenters() {
 		return repoRenter.findAll();
 	}
@@ -41,8 +41,9 @@ public class RenterServiceImpl implements RenterService {
 				.orElseThrow(() -> new ResourceNotFoundException());
 	}
 
-	@Override
 	public Boolean createRenter(Renter renter) {
+		if (checkRenterEmailExist(renter.getEmail()))
+			throw new DuplicateResourceException();
 		try {
 			if (renter.getPassword() != null)
 				renter.setPassword(passwordEncoder.encode(renter.getPassword()));
@@ -55,7 +56,6 @@ public class RenterServiceImpl implements RenterService {
 		}
 	}
 
-	@Override
 	public Renter updateRenter(UUID id, Renter inRenter) {
 		Renter r = repoRenter.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException());
@@ -73,7 +73,6 @@ public class RenterServiceImpl implements RenterService {
 		return repoRenter.saveAndFlush(r);
 	}
 
-	@Override
 	public Boolean deleteRenter(UUID id) {
 		Renter renter = getRenterById(id);
 		if (renter != null) {
@@ -88,5 +87,9 @@ public class RenterServiceImpl implements RenterService {
 
 	public Boolean checkPassword(Renter renter, String password) {
 		return false;
+	}
+
+	public Boolean checkRenterEmailExist(String email) {
+		return repoRenter.existsByEmail(email);
 	}
 }

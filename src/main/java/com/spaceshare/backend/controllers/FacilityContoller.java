@@ -1,6 +1,5 @@
 package com.spaceshare.backend.controllers;
 
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +15,6 @@ import org.supercsv.prefs.CsvPreference;
 import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.DuplicateResourceException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
-import com.spaceshare.backend.models.Amenity;
 import com.spaceshare.backend.models.Facility;
 import com.spaceshare.backend.services.FacilityService;
 
@@ -76,6 +74,8 @@ public class FacilityContoller {
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (DuplicateResourceException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (BadRequestException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
@@ -83,15 +83,21 @@ public class FacilityContoller {
         }
     }
 
-//    @PutMapping("/update/{id}")
-//    public ResponseEntity<Facility> updateFacility(
-//            @PathVariable Long id,
-//            @RequestBody Facility facility) {
-//        Facility updatedFacility = facilityService.updateFacility(id, facility);
-//        if (updatedFacility == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateFacility(@PathVariable Long id, @RequestBody Facility facility) {
+        try {
+            facilityService.updateFacility(id, facility);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (DuplicateResourceException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteFacility(@PathVariable Long id) {

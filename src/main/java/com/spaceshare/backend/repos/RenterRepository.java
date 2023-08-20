@@ -12,4 +12,6 @@ import com.spaceshare.backend.models.Renter;
 public interface RenterRepository extends JpaRepository<Renter, UUID>{
 
 	Optional<Renter> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }

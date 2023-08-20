@@ -12,7 +12,7 @@ public interface AmenityService {
 
     Amenity addAmenity(Amenity amenity);
 
-    // Amenity updateAmenity(Long id, Amenity amenity);
+    Amenity updateAmenity(Long id, Amenity amenity);
 
     Boolean deleteAmenity(Long id);
 

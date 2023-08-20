@@ -15,7 +15,7 @@ public interface AdminService {
 
 	Boolean createAdmin(Admin admin);
 
-	Boolean updatePassword(UUID id, String password);
+	Boolean updatePassword(UUID id, Admin admin);
 
 	Boolean deleteAdmin(UUID id);
 

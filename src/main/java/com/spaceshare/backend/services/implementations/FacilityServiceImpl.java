@@ -45,20 +45,20 @@ public class FacilityServiceImpl implements FacilityService {
         }
     }
 
-    // public Facility updateFacility(Long id, Facility updatedFacility) {
-    // Facility existingFacility =
-    // facilityRepository.findById(updatedFacility.getId()).orElse(null);
-    // if (existingFacility != null) {
-    // if (!isFacilityNameExists(updatedFacility.getFacilityName())) {
-    // existingFacility.setFacilityName(updatedFacility.getFacilityName());
-    // facilityRepository.save(existingFacility);
-    // return true;
-    // } else {
-    // throw new RuntimeException("Name is already exist");
-    // }
-    // }
-    // return false;
-    // }
+    public Facility updateFacility(Long id, Facility updatedFacility) {
+        Facility existingFacility = facilityRepository.findById(id).orElse(null);
+        if (isFacilityNameExists(updatedFacility.getFacilityName())) {
+            throw new DuplicateResourceException();
+        }
+        try {
+            existingFacility.setFacilityName(updatedFacility.getFacilityName());
+            return facilityRepository.save(existingFacility);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
+    }
 
     public Boolean deleteFacility(Long id) {
         try {

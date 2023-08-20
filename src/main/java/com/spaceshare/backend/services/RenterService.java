@@ -18,4 +18,6 @@ public interface RenterService {
 	Renter updateRenter(UUID id, Renter renter);
 
 	Boolean deleteRenter(UUID id);
+
+	Boolean checkRenterEmailExist(String email);
 }

@@ -17,7 +17,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,17 +24,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spaceshare.backend.exceptions.BadRequestException;
+import com.spaceshare.backend.exceptions.DuplicateResourceException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Admin;
 import com.spaceshare.backend.models.JasperUser;
+import com.spaceshare.backend.models.Property;
 import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.models.enums.Status;
 import com.spaceshare.backend.services.AdminService;
+import com.spaceshare.backend.services.PropertyService;
 import com.spaceshare.backend.services.RenterService;
 import com.spaceshare.backend.services.TenantService;
 
@@ -64,6 +65,9 @@ public class AdminController {
 
 	@Autowired
 	TenantService svcTenant;
+
+    @Autowired
+    PropertyService svcProperty;
 
     /*** API Methods ***/
     /**
@@ -112,11 +116,11 @@ public class AdminController {
      * @return
      */
     @PostMapping("/create")
-    public ResponseEntity<?> createAdmin(@RequestBody @Validated Admin admin) {
+    public ResponseEntity<?> createAdmin(@RequestBody Admin admin) {
         try {
             Boolean success = adminService.createAdmin(admin);
             if (success) {
-                return new ResponseEntity<>(HttpStatus.OK);
+                return new ResponseEntity<>(HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
@@ -124,6 +128,9 @@ public class AdminController {
 		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+        catch (DuplicateResourceException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
 		catch (BadRequestException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
@@ -141,9 +148,9 @@ public class AdminController {
      * @return
      */
     @PutMapping("/update_password/{id}")
-    public ResponseEntity<?> updatePassword(@PathVariable UUID id, @RequestParam String password) {
+    public ResponseEntity<?> updatePassword(@PathVariable UUID id, @RequestBody Admin admin) {
         try {
-            Boolean success = adminService.updatePassword(id, password);
+            Boolean success = adminService.updatePassword(id, admin);
             if (success) {
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
@@ -256,5 +263,24 @@ public class AdminController {
 		httpHeaders.setContentType(MediaType.APPLICATION_PDF);
 
 		return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), httpHeaders, HttpStatus.OK);
+	}
+
+	@GetMapping("/property")
+	public ResponseEntity<?> getAllPropertiesByAdmin() {
+		try {
+            // int pageNumber = 0;
+            // int pageSize = 50;
+            // String sortBy = "createdAt";
+
+            // Page<PropertyProjection> propertyPage = svcProperty.getAllProperties(pageNumber, pageSize, sortBy);
+            // List<PropertyProjection> properties = propertyPage.getContent();
+
+            List<Property> properties = svcProperty.getAllReportProperties();
+			return new ResponseEntity<>(properties, HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

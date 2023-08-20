@@ -27,16 +27,13 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import com.spaceshare.backend.dtos.TenantDTO;
 import com.spaceshare.backend.exceptions.BadRequestException;
+import com.spaceshare.backend.exceptions.DuplicateResourceException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Property;
-import com.spaceshare.backend.models.RecentSearch;
-import com.spaceshare.backend.models.Renter;
 import com.spaceshare.backend.models.Tenant;
 import com.spaceshare.backend.services.RecentSearchService;
 import com.spaceshare.backend.models.enums.Status;
-import com.spaceshare.backend.services.RenterService;
 import com.spaceshare.backend.services.TenantService;
 
 @RestController
@@ -138,38 +135,6 @@ public class TenantController {
 		}
 	}
 
-	// @PostMapping("/register")
-	// public ResponseEntity<?> postRegisterRenter(@RequestBody Renter renter) {
-	// Boolean success = svcRenter.createRenter(renter);
-
-	// if (success) {
-	// return new ResponseEntity<>(renter, HttpStatus.OK);
-	// }
-	// else {
-	// return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
-	// }
-	// }
-	@PostMapping("/register")
-	public ResponseEntity<Tenant> createTenant(@RequestBody Tenant tenant) {
-		try {
-
-			Boolean success = svcTenant.saveTenant(tenant);
-			if (success) {
-				return new ResponseEntity<Tenant>(HttpStatus.CREATED);
-			} else {
-				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-
-		} catch (ResourceNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (BadRequestException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-		}
-
-	}
-
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getTenantById(@PathVariable UUID id) {
 		Tenant tenant = svcTenant.getTenantById(id);
@@ -212,6 +177,9 @@ public class TenantController {
 		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
+		catch (DuplicateResourceException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
 		catch (BadRequestException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}

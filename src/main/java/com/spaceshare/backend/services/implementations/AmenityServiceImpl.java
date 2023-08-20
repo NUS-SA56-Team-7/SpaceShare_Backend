@@ -44,20 +44,20 @@ public class AmenityServiceImpl implements AmenityService {
         }
     }
 
-    // public Amenity updateAmenity(Long id, Amenity updatedAmenity) {
-    // Amenity existingAmenity =
-    // amenityRepository.findById(updatedAmenity.getId()).orElse(null);
-    // if (existingAmenity != null) {
-    // if (!isAmenityNameExists(updatedAmenity.getAmenityName())) {
-    // existingAmenity.setAmenityName(updatedAmenity.getAmenityName());
-    // amenityRepository.save(existingAmenity);
-    // return true;
-    // } else {
-    // throw new RuntimeException("Name is already exist");
-    // }
-    // }
-    // return false;
-    // }
+    public Amenity updateAmenity(Long id, Amenity updatedAmenity) {
+        Amenity existingAmenity = amenityRepository.findById(id).orElse(null);
+        if (isAmenityNameExists(updatedAmenity.getAmenityName())) {
+            throw new DuplicateResourceException();
+        }
+        try {
+            existingAmenity.setAmenityName(updatedAmenity.getAmenityName());
+            return amenityRepository.save(existingAmenity);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
+    }
 
     public Boolean deleteAmenity(Long id) {
         try {

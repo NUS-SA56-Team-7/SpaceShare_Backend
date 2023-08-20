@@ -18,10 +18,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.spaceshare.backend.exceptions.BadRequestException;
+import com.spaceshare.backend.exceptions.DuplicateResourceException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.functions.GenerateOTP;
 import com.spaceshare.backend.models.Account;
@@ -73,15 +74,24 @@ public class AuthController {
 
 	/*** API Methods ***/
 	/* RENTER */
-	@PostMapping("/register/renter")
-	public ResponseEntity<?> postRegisterRenter(@RequestBody Renter renter) {
-		Boolean success = svcRenter.createRenter(renter);
-		
-		if (success) {
-			return new ResponseEntity<>(renter, HttpStatus.OK);
-		}
-		else {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	@PostMapping("/renter/register")
+	public ResponseEntity<Renter> createRenter(@RequestBody Renter renter) {
+		try {
+			Boolean success = svcRenter.createRenter(renter);
+
+			if (success) {
+				return new ResponseEntity<Renter>(HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (DuplicateResourceException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 	
@@ -192,15 +202,26 @@ public class AuthController {
 	
 	/* TENANT */
 	@PostMapping("/register/tenant")
-	public ResponseEntity<?> postRegisterTenant(@RequestBody Tenant tenant) {
-		Boolean success = svcTenant.createTenant(tenant);
+	public ResponseEntity<Tenant> createTenant(@RequestBody Tenant tenant) {
+		try {
 
-		if (success) {
-			return new ResponseEntity<>(tenant, HttpStatus.OK);
+			Boolean success = svcTenant.saveTenant(tenant);
+			if (success) {
+				return new ResponseEntity<Tenant>(HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}catch (DuplicateResourceException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
-		else {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+
 	}
 	
 	@PostMapping("/login/tenant")

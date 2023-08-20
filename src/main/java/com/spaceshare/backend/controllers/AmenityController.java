@@ -1,5 +1,6 @@
 package com.spaceshare.backend.controllers;
 
+import com.spaceshare.backend.exceptions.BadRequestException;
 import com.spaceshare.backend.exceptions.DuplicateResourceException;
 import com.spaceshare.backend.exceptions.ResourceNotFoundException;
 import com.spaceshare.backend.models.Amenity;
@@ -72,26 +73,30 @@ public class AmenityController {
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (DuplicateResourceException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } catch (ResourceNotFoundException e) {
+        } catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-//    @PutMapping("/update/{id}")
-//    public ResponseEntity<?> updateAmenity(
-//            @PathVariable Long id,
-//            @RequestBody Amenity amenity) {
-//        try {
-//            amenityService.updateAmenity(id, amenity);
-//            return new ResponseEntity<>(HttpStatus.OK);
-//        } catch (ResourceNotFoundException e) {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateAmenity(@PathVariable Long id, @RequestBody Amenity amenity) {
+        try {
+            amenityService.updateAmenity(id, amenity);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (DuplicateResourceException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (BadRequestException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteAmenity(@PathVariable Long id) {
