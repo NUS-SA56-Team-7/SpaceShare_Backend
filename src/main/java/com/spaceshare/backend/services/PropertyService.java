@@ -22,16 +22,26 @@ public interface PropertyService {
 	Boolean updateRenterProperty(UUID renterId, Long propertyId, Property property);
 	
 	Boolean deleteRenterProperty(UUID renterId, Long propertyId);
+	
+	Boolean createTenantProperty(UUID tenantId, Property property);
+
+	Boolean updateTenantProperty(UUID tenantId, Long propertyId, Property property);
+	
+	Boolean deleteTenantProperty(UUID tenantId, Long propertyId);
 
 	PropertyDetailProjection getPropertyById(Long id);
 
 	Page<PropertyProjection> getAllProperties(int pageNumber, int pageSize, String sortBy);
+	
+	Page<PropertyProjection> getSearchedProperties(PostType postType, String title, int pageNumber, int pageSize, String sortBy);
 
 	List<Property> getAllReportProperties();
 
 	Long increaseViewCount(Long id);
 
 	List<PropertyProjection> getPropertiesByRenterId(UUID renterId);
+	
+	List<PropertyProjection> getPropertiesByTenantId(UUID tenantId);
 	
 	Long getTotalCount();
 

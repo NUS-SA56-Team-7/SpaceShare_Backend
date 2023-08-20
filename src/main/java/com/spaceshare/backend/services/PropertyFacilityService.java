@@ -9,5 +9,7 @@ public interface PropertyFacilityService {
     
 	List<PropertyFacility> createPropertyFacilities(Property property, List<Long> facilityIDs);
 	
+	List<PropertyFacility> updatePropertyFacilities(Property property, List<Long> facilityIDs);
+	
 	Boolean deletePropertyFacilities(Long propertyId);
 }

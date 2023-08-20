@@ -14,5 +14,7 @@ public interface RecentSearchRepository extends JpaRepository<RecentSearch, Long
 
 	List<RecentSearch> findByTenantId(UUID tenantId);
 	
+	List<RecentSearch> findByPropertyId(Long id);
+	
 	Optional<RecentSearch> findFirstByOrderBySearchedAtAsc();
 }

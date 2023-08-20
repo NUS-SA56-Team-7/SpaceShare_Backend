@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.spaceshare.backend.models.PropertyImage;
 import com.spaceshare.backend.models.Renter;
+import com.spaceshare.backend.models.enums.ApproveStatus;
 import com.spaceshare.backend.models.enums.Furnishment;
 import com.spaceshare.backend.models.enums.PostType;
 import com.spaceshare.backend.models.enums.PropertyType;
@@ -47,10 +48,25 @@ public interface PropertyProjection {
 
     Status getStatus();
     
+    ApproveStatus getApproveStatus();
+    
+    LocalDate getAvailableOn();
+    
     List<PropertyImage> getPropertyImages();
     
     RenterProjection getRenter();
     interface RenterProjection {
+    	UUID getId();
+    	
+    	String getFirstName();
+    	
+    	String getLastName();
+    	
+    	String getPhotoUrl();
+    }
+    
+    TenantProjection getTenant();
+    interface TenantProjection {
     	UUID getId();
     	
     	String getFirstName();

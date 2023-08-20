@@ -58,27 +58,39 @@ public class PropertyController {
 		try {
 			PropertyDetailProjection property = svcProperty.getPropertyById(id);
 			return new ResponseEntity<>(property, HttpStatus.OK);
-		} catch (ResourceNotFoundException e) {
+		}
+		catch (ResourceNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@GetMapping("")
 	public ResponseEntity<?> getAllProperties(
-			@RequestParam(defaultValue = "0") int pageNumber,
+			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "8") int pageSize,
 			@RequestParam(defaultValue = "title") String sortBy) {
-
 		try {
-			Page<PropertyProjection> propertyPage = svcProperty.getAllProperties(pageNumber, pageSize, sortBy);
-
-			Map<String, Object> resBody = new HashMap<>();
-			resBody.put("count", svcProperty.getTotalCount());
-			resBody.put("data", propertyPage);
-
-			return new ResponseEntity<>(resBody, HttpStatus.OK);
+			Page<PropertyProjection> propertyPage = svcProperty.getAllProperties(page, pageSize, sortBy);
+			return new ResponseEntity<>(propertyPage, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/search")
+	public ResponseEntity<?> getSearchedProperties(
+			@RequestParam(defaultValue = "ROOM_RENTAL") String postType,
+			@RequestParam(required = false) String keyword,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "8") int pageSize,
+			@RequestParam(defaultValue = "title") String sortBy) {
+		try {
+			Page<PropertyProjection> propertyPage =
+					svcProperty.getSearchedProperties(PostType.valueOf(postType), keyword, page, pageSize, sortBy);
+			return new ResponseEntity<>(propertyPage, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}

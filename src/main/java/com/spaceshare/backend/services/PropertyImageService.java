@@ -9,5 +9,7 @@ public interface PropertyImageService {
  
 	List<PropertyImage> createPropertyImages(Property property, List<String> propertyImageURLs);
 	
+	List<PropertyImage> updatePropertyImages(Property property, List<String> propertyImageURLs);
+	
 	Boolean deletePropertyImages(Long propertyId);
 }

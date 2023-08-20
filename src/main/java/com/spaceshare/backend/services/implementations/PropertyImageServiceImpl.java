@@ -42,14 +42,19 @@ public class PropertyImageServiceImpl implements PropertyImageService {
 	}
 	
 	@Transactional
-	public Boolean updatePropertyImages(Property property, List<String> propertyImageURLs) {
+	public List<PropertyImage> updatePropertyImages(Property property, List<String> propertyImageURLs) {
+		
+		List<PropertyImage> propertyImages = new ArrayList<PropertyImage>();
+		
 		for (String imageURL: propertyImageURLs) {
 			PropertyImage propertyImage = new PropertyImage();
 			propertyImage.setImageUrl(imageURL);
 			propertyImage.setProperty(property);
-			repoPropertyImage.save(propertyImage);
+			
+			propertyImages.add(repoPropertyImage.save(propertyImage));
 		}
-		return true;
+
+		return propertyImages;
 	}
 	
 	@Transactional
